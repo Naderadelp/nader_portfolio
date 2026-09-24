@@ -286,6 +286,13 @@ const SCREENSHOTS: ScreenShot[] = [
  */
 export const mobileScreenshots: ScreenShot[] = [
   {
+    src: '/screenshots/mobile/car-tracker-mobile-home-dashboard.jpg',
+    alt: 'Car-tracker mobile home screen showing current mileage, a map card with the car\u2019s last parked location, and a progress bar counting down to the next scheduled service.',
+    caption: 'Odometer state, last known parking location and the next service interval, resolved in one call.',
+    width: 590,
+    height: 1280,
+  },
+  {
     src: '/screenshots/mobile/car-tracker-mobile-services-schedule.jpg',
     alt: 'Services tab listing upcoming maintenance intervals from 40,000 km to 100,000 km, each with kilometres remaining, item count and cost in EGP.',
     caption: 'The service plan projected against the live odometer to compute what is due, when, and at what cost.',
