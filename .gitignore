@@ -14,6 +14,9 @@
 /coverage
 
 # next.js
+# `/out/` is the static export that Cloudflare Pages serves. It is a build
+# artefact and is never committed. `/public/` is source and MUST stay tracked —
+# the CV PDFs and the car-tracker screenshots live there.
 /.next/
 /out/
 
@@ -30,11 +33,14 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
-.env*
+# env files — nothing here needs one, and none should ever be committed
+.env
+.env.*
+!.env.example
 
-# vercel
+# hosting CLIs
 .vercel
+.wrangler/
 
 # typescript
 *.tsbuildinfo

@@ -1,26 +1,196 @@
 @import "tailwindcss";
 
+/* ---------------------------------------------------------------------------
+   Theme variant
+   Dark is driven by a class on <html>, written before first paint by the
+   inline script in layout.tsx. `.light` is the explicit opt-out so the
+   system-preference fallback can be overridden in both directions.
+   --------------------------------------------------------------------------- */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ---------------------------------------------------------------------------
+   Design tokens
+   Light values are the base; dark overrides follow. Exactly one accent
+   (violet), used only for links, hover states and the active nav marker.
+   --------------------------------------------------------------------------- */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: light;
+
+  --bg: #fcfcfd;
+  --surface: #f4f4f5;
+  --fg: #18181b;
+  --fg-secondary: #52525b;
+  --fg-muted: #71717a;
+  --hairline: #e4e4e7;
+  /* Violet, darkened for AA contrast on a near-white background. */
+  --accent: #6d28d9;
+  --accent-hover: #5b21b6;
+  --accent-soft: rgb(109 40 217 / 0.1);
+  --selection: rgb(109 40 217 / 0.18);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
+/* System preference, unless the reader explicitly chose light. */
 @media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  :root:not(.light) {
+    color-scheme: dark;
+
+    --bg: #0b0b0d;
+    --surface: #131317;
+    --fg: #e6e6e6;
+    --fg-secondary: #a1a1aa; /* 7.5:1 on --bg */
+    /* 5.8:1 on --bg — clears WCAG AA (4.5:1) for small text. It was #6b7280,
+       which measured 4.07:1 and failed on the nav labels, the figure captions
+       and the footer. Still reserved for mono labels, dates and captions;
+       body copy uses --fg-secondary. */
+    --fg-muted: #8b8b94;
+    --hairline: #232329;
+    --accent: #8b5cf6; /* 4.6:1 on --bg */
+    --accent-hover: #a78bfa;
+    --accent-soft: rgb(139 92 246 / 0.12);
+    --selection: rgb(139 92 246 / 0.25);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Explicit choice wins over the media query. */
+:root.dark {
+  color-scheme: dark;
+
+  --bg: #0b0b0d;
+  --surface: #131317;
+  --fg: #e6e6e6;
+  --fg-secondary: #a1a1aa;
+  --fg-muted: #8b8b94; /* 5.8:1 on --bg — see the note above */
+  --hairline: #232329;
+  --accent: #8b5cf6;
+  --accent-hover: #a78bfa;
+  --accent-soft: rgb(139 92 246 / 0.12);
+  --selection: rgb(139 92 246 / 0.25);
+}
+
+@theme inline {
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-fg: var(--fg);
+  --color-fg-secondary: var(--fg-secondary);
+  --color-fg-muted: var(--fg-muted);
+  --color-hairline: var(--hairline);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-soft: var(--accent-soft);
+
+  /* Type scale. Hero is fluid; everything else is fixed and small. */
+  --text-hero: clamp(3rem, 5.5vw, 4rem);
+  --text-hero--line-height: 1.05;
+  --text-hero--letter-spacing: -0.025em;
+
+  --text-section: clamp(1.25rem, 1.4vw + 0.9rem, 1.5rem);
+  --text-section--line-height: 1.3;
+  --text-section--letter-spacing: -0.01em;
+
+  --text-body: 1.0625rem; /* 17px */
+  --text-body--line-height: 1.65;
+
+  --text-label: 0.75rem; /* 12px — mono labels, dates, tags */
+  --text-label--line-height: 1.4;
+  --text-label--letter-spacing: 0.06em;
+
+  --text-metric: clamp(2rem, 3.5vw, 2.75rem);
+  --text-metric--line-height: 1;
+  --text-metric--letter-spacing: -0.03em;
+
+  /* Prose measure cap. Geist's `0` is wide, so 68ch resolved to 766px — wider
+     than the main column at every breakpoint, which meant the cap never bit
+     and lines ran to ~86 characters at 768px. 38rem is ~72 characters at the
+     17px body size. */
+  --container-measure: 38rem;
+
+  --ease-out-soft: cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+/* ---------------------------------------------------------------------------
+   Base
+   --------------------------------------------------------------------------- */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    /* Sticky sidebar + anchored sections: keep headings clear of the top. */
+    scroll-padding-top: 6rem;
+  }
+
+  body {
+    background-color: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+    font-size: var(--text-body);
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background-color: var(--selection);
+  }
+
+  /* One visible focus ring everywhere, in the accent. */
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  /* Geist Mono is for labels, dates, metrics and tech tags only. */
+  code,
+  kbd,
+  samp,
+  pre {
+    font-family: var(--font-geist-mono), ui-monospace, monospace;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Reveal-on-scroll
+   The hidden state lives in CSS so the first paint is already correct; the
+   Reveal client component only flips data-revealed. <noscript> and
+   prefers-reduced-motion both force the visible state.
+   --------------------------------------------------------------------------- */
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(10px);
+  transition:
+    opacity 220ms var(--ease-out-soft),
+    transform 220ms var(--ease-out-soft);
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: opacity, transform;
+}
+
+[data-reveal][data-revealed="true"] {
+  opacity: 1;
+  transform: none;
+}
+
+/* ---------------------------------------------------------------------------
+   Reduced motion: every animation and transition on the site is off.
+   --------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
