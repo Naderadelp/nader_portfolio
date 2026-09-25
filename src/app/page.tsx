@@ -293,7 +293,7 @@ export default function Home() {
           id="contributions"
           index="03"
           eyebrow="Inside other people's code"
-          title="Two systems I did not own, and what I landed in them."
+          title="Three systems I did not own, and what I landed in them."
           standfirst="Stated at the size git blame supports, not larger."
         >
           <div className="space-y-20">
@@ -318,22 +318,32 @@ export default function Home() {
                   ))}
                 </div>
 
-                {item.screenshot ? (
-                  <figure className="mt-10">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={item.screenshot.src}
-                      alt={item.screenshot.alt}
-                      width={item.screenshot.width}
-                      height={item.screenshot.height}
-                      loading="lazy"
-                      decoding="async"
-                      className="w-full border border-hairline"
-                    />
-                    <figcaption className="mt-3 max-w-measure text-sm text-fg-secondary">
-                      {item.screenshot.caption}
-                    </figcaption>
-                  </figure>
+                {/* Wide captures take the full row; narrower ones pair up. */}
+                {item.screenshots.length > 0 ? (
+                  <ul className="mt-10 grid gap-10 sm:grid-cols-2">
+                    {item.screenshots.map((shot) => (
+                      <li
+                        key={shot.src}
+                        className={shot.width > 1200 ? "sm:col-span-2" : undefined}
+                      >
+                        <figure>
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={shot.src}
+                            alt={shot.alt}
+                            width={shot.width}
+                            height={shot.height}
+                            loading="lazy"
+                            decoding="async"
+                            className="w-full border border-hairline"
+                          />
+                          <figcaption className="mt-3 max-w-measure text-sm text-fg-secondary">
+                            {shot.caption}
+                          </figcaption>
+                        </figure>
+                      </li>
+                    ))}
+                  </ul>
                 ) : null}
 
                 <TechTagList

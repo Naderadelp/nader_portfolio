@@ -179,11 +179,12 @@ export interface Contribution {
   authorship: string;
   paragraphs: string[];
   tech: string[];
-  screenshot: {
+  /** Two or three at most. Empty when there is nothing that can be shown. */
+  screenshots: {
     src: string;
     alt: string;
     caption: string;
     width: number;
     height: number;
-  } | null;
+  }[];
 }

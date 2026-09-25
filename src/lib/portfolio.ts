@@ -311,13 +311,6 @@ export const erpScreenshots: ScreenShot[] = [
     height: 1280,
   },
   {
-    src: '/screenshots/erp/erp-field-app-empty-order.jpg',
-    alt: 'New order screen with tabs for services, raw materials and packing materials, showing an empty state before any product is added.',
-    caption: 'A new order before anything is added. Product categories come from the ERP, not from a local list.',
-    width: 591,
-    height: 1280,
-  },
-  {
     src: '/screenshots/erp/erp-field-app-product.jpg',
     alt: 'Product selected in an order, showing batch number and unit price, with a quantity sheet open over it.',
     caption: 'Batch number and unit price arrive with the product, so the agent is quoting the same figure the ERP holds.',
