@@ -9,9 +9,11 @@
 
 /** Sections that the scroll-spy observes, in document order. */
 export type SectionId =
+  | "services"
+  | "work"
+  | "process"
   | "about"
   | "pipeline"
-  | "work"
   | "experience"
   | "stack"
   | "contact";
@@ -19,10 +21,15 @@ export type SectionId =
 /**
  * Sections that get a nav entry.
  *
- * `pipeline` is deliberately absent: the figure is the argument the About
- * section is making, so it reports under About through NAV_ALIAS.
+ * The nav is ordered for a client: what I do, the proof, how working together
+ * goes, who I am, how to reach me. `pipeline`, `experience` and `stack` have no
+ * entry of their own — they are the evidence behind About — and report under
+ * it through NAV_ALIAS rather than growing the nav past five items.
  */
-export type NavSectionId = Exclude<SectionId, "pipeline">;
+export type NavSectionId = Exclude<
+  SectionId,
+  "pipeline" | "experience" | "stack"
+>;
 
 export interface NavItem {
   id: NavSectionId;
@@ -169,6 +176,23 @@ export interface WorkCard {
     | { type: "image"; shot: ScreenShot }
     | { type: "phones"; shots: ScreenShot[] }
     | { type: "figure"; value: string; label: string };
+}
+
+/** A service card: something a client can hire me for, with its proof. */
+export interface ServiceCard {
+  id: string;
+  title: string;
+  summary: string;
+  includes: string[];
+  /** Links to the project pages that back the claim. */
+  proof: { href: string; label: string }[];
+}
+
+export interface ProcessContent {
+  availability: string;
+  steps: { title: string; body: string }[];
+  terms: string[];
+  recommendations: { label: string; href: string };
 }
 
 export interface Contact {

@@ -22,9 +22,7 @@ const SPY_SECTIONS: readonly SectionId[] = [
 
 const NAV_ITEMS: readonly NavItem[] = [
   { id: "about", label: "About" },
-  { id: "experience", label: "Experience" },
   { id: "work", label: "Work" },
-  { id: "stack", label: "Stack" },
   { id: "contact", label: "Contact" },
 ];
 

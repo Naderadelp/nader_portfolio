@@ -188,3 +188,45 @@ export interface Contribution {
     height: number;
   }[];
 }
+
+/* -------------------------------------------------------------------------- */
+/* Freelance: services, engagement, project summaries                         */
+/* -------------------------------------------------------------------------- */
+
+/** One thing a client can hire me for, backed by projects on this site. */
+export interface Service {
+  id: string;
+  title: string;
+  summary: string;
+  /** Concrete deliverables. Each must be something already shown or used. */
+  includes: string[];
+  /** Work slugs that prove it — case-study slugs, contribution ids, or `car-tracker`. */
+  proof: string[];
+}
+
+export interface EngagementStep {
+  title: string;
+  body: string;
+}
+
+export interface Engagement {
+  /** Short availability line, shown in the hero and the process section. */
+  availability: string;
+  steps: EngagementStep[];
+  /** The practical terms, one line each. */
+  terms: string[];
+  /** Social proof lives off-site: a link, never quotes on the page. */
+  recommendations: { label: string; href: string };
+  contact: { heading: string; body: string; subject: string };
+}
+
+/**
+ * The ten-second version of a project, for a reader who is not an engineer:
+ * what was wrong, what I built, what changed. Every clause must be supported
+ * by the full write-up on the same page.
+ */
+export interface ProjectGlance {
+  problem: string;
+  built: string;
+  result: string;
+}

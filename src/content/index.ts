@@ -7,11 +7,15 @@ export type {
   CvLink,
   CvVariantId,
   DiagramKey,
+  Engagement,
+  EngagementStep,
   EducationEntry,
   ExperienceEntry,
   LanguageEntry,
   Profile,
   Project,
+  ProjectGlance,
+  Service,
   SocialLink,
   SocialPlatform,
   StackGroup,
@@ -24,3 +28,4 @@ export { caseStudies, caseStudiesBySlug, getCaseStudy } from '@/content/case-stu
 export { projects } from '@/content/projects';
 export { stack, experienceStack, learningStack } from '@/content/stack';
 export { contributions } from './contributions';
+export { services, engagement, projectGlance } from './freelance';

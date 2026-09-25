@@ -15,9 +15,12 @@
 import {
   caseStudies,
   contributions,
+  engagement,
   experience,
   profile,
+  projectGlance,
   projects,
+  services,
   stack,
 } from '@/content';
 import type {
@@ -25,6 +28,8 @@ import type {
   CaseStudy,
   CodeExcerpt,
   Contact,
+  ProcessContent,
+  ServiceCard,
   ExperienceItem,
   Profile,
   RepoCard,
@@ -499,10 +504,41 @@ export const adaptedStack: StackGroup[] = stack.map((group) => ({
 /* -------------------------------------------------------------------------- */
 
 export const adaptedContact: Contact = {
-  heading: 'Contact',
-  body: `I am open to backend roles and to freelance work. ${profile.availability.summary} The fastest way to reach me is email.`,
+  heading: engagement.contact.heading,
+  body: engagement.contact.body,
   email: EMAIL,
 };
+
+/** The "start a project" link: the email, with the subject already filled in. */
+export const contactHref = `mailto:${EMAIL}?subject=${encodeURIComponent(engagement.contact.subject)}`;
+
+/* -------------------------------------------------------------------------- */
+/* Freelance: services and process                                             */
+/* -------------------------------------------------------------------------- */
+
+export const serviceCards: ServiceCard[] = services.map((service) => ({
+  id: service.id,
+  title: service.title,
+  summary: service.summary,
+  includes: service.includes,
+  proof: service.proof.map((slug) => {
+    const card = getWorkCard(slug);
+    if (!card) throw new Error(`Service "${service.id}" cites unknown project "${slug}".`);
+    return { href: `/work/${slug}`, label: card.title };
+  }),
+}));
+
+export const processContent: ProcessContent = {
+  availability: engagement.availability,
+  steps: engagement.steps,
+  terms: engagement.terms,
+  recommendations: engagement.recommendations,
+};
+
+/** The ten-second summary for a project page, when there is one. */
+export function getGlance(slug: string) {
+  return projectGlance[slug];
+}
 
 /** Both CV variants, offered side by side. */
 export const cvLinks = profile.cvs;

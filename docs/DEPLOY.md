@@ -92,6 +92,14 @@ This matters more than it looks. Next absolutises `og:image`, and with no base i
 `http://localhost:3000/og.jpg` — a card that is broken for every recipient, while the page
 itself looks perfect locally. The failure is invisible until someone pastes the link somewhere.
 
+**Set `NEXT_PUBLIC_SITE_URL` for Production now, not only for a custom domain.**
+`CF_PAGES_URL` is the URL of *that deployment* (a hashed subdomain), not the stable production
+address. `sitemap.xml`, `robots.txt`, the structured data and every canonical URL are built from
+the site URL, so without the variable a search engine is handed a deployment-specific address.
+Set it under Settings → Environment variables → Production to
+`https://nader-portfolio.pages.dev` (or whatever the project name produced), and leave it unset
+for Preview so previews keep their own URL.
+
 **When a custom domain is added**, set `NEXT_PUBLIC_SITE_URL` to it (e.g.
 `https://naderadel.dev`) so the card and any canonical URLs point at the real host rather than
 at `*.pages.dev`. That is the only change the domain needs.

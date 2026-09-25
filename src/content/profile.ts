@@ -14,12 +14,12 @@ import type { Profile } from '@/content/types';
  */
 export const hero = {
   headline: ['The request ends.', "The work doesn't."],
-  lead: `I build the integrations, queues and reconciliation sweeps that keep two systems telling the same story — inside a Laravel modular monolith of 127 bounded contexts, used by about 5,000 people across four companies.`,
-  availability: 'Open to remote work · Cairo, GMT+3',
+  lead: `Backend developer for Laravel and Node. I connect your app to the systems it depends on — ERPs, CRMs, listing portals — and keep the data agreeing after the request is over. Seven projects below, with the trade-offs left in.`,
+  availability: 'Taking freelance work · ~20h/week · Cairo, GMT+3',
   stats: [
     { value: '20,665', label: 'Lines, sole author' },
-    { value: '127', label: 'Bounded contexts' },
     { value: '~5,000', label: 'Platform users' },
+    { value: '~50', label: 'Field agents on my sync' },
     { value: '35', label: 'Test files' },
   ],
   portraitSrc: '/portrait.jpg',

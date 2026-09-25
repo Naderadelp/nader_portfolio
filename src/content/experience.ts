@@ -16,7 +16,7 @@ export const experience = [
       'Own features end to end across the HR, Unit, Deal, Lead, Learning, Developer Project and Task Management modules: schema, domain logic, queued jobs, API and tests.',
       'Build the third-party integrations: typed clients, rate-limit handling, and scheduled reconciliation for the systems that never send anything back.',
       'Alongside the current platform, still maintain the older Laravel 9 CRM that serves the rest of the group.',
-      'Work inside module boundaries owned by other engineers: most of the work in landing a change here is proving nothing adjacent breaks.',
+      'Land changes in modules other engineers own without breaking them — reading more code than I change, and writing the tests that prove nothing adjacent moved.',
     ],
   },
   {

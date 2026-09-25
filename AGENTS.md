@@ -73,6 +73,11 @@ not one. Know which you are in before you edit.
 - `src/content/` is **plain data about Nader**: facts, copy, numbers, links. No React, no
   imports from components, no side effects. Export through `src/content/index.ts`; import as
   `@/content`.
+- `src/content/freelance.ts` is the client-facing layer: services, how an engagement works, and
+  the three-line summary at the top of each project page. The site is aimed at freelance clients
+  first, so this copy leads the page. It is held to the same rules as everything else: every
+  service cites projects on the site, every summary compresses its write-up and never adds to
+  it, and availability or terms change only when Nader says so.
 - `src/components/` is **presentation**, and knows nothing about Nader. It takes the shapes in
   `layout/types.ts` and renders them.
 - The two were authored independently and their shapes differ (`CaseStudy` exists in both, with

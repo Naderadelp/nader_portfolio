@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { SITE_URL } from "@/lib/site-url";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,9 +16,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Nader Adel — Backend Engineer",
+  title: "Nader Adel — Backend Developer, Laravel & Node",
   description:
-    "Backend engineer in Cairo building Laravel and TypeScript systems: publishing pipelines, ERP sync and queue-driven workflows.",
+    "Freelance backend developer in Cairo, working remotely: Laravel and Node APIs, third-party integrations and data sync, admin panels, and fixes in existing codebases.",
   /**
    * `metadataBase` is read from the environment, never hardcoded.
    *
@@ -32,15 +33,11 @@ export const metadata: Metadata = {
    * later with no code change — the requirement docs/SPEC.md actually cared
    * about. The localhost default only ever applies to `npm run dev`.
    */
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL ??
-      process.env.CF_PAGES_URL ??
-      "http://localhost:3000",
-  ),
+  metadataBase: SITE_URL,
   openGraph: {
-    title: "Nader Adel — Backend Engineer",
+    title: "Nader Adel — Backend Developer, Laravel & Node",
     description:
-      "Integrations, queues and reconciliation. Most of what I build runs after the response has already gone out.",
+      "Integrations, APIs and data sync for Laravel and Node apps. Taking freelance work, remote.",
     type: "profile",
     images: [
       {
@@ -61,9 +58,9 @@ export const metadata: Metadata = {
    */
   twitter: {
     card: "summary_large_image",
-    title: "Nader Adel — Backend Engineer",
+    title: "Nader Adel — Backend Developer, Laravel & Node",
     description:
-      "Integrations, queues and reconciliation. Most of what I build runs after the response has already gone out.",
+      "Integrations, APIs and data sync for Laravel and Node apps. Taking freelance work, remote.",
     images: ["/og.jpg"],
   },
 };

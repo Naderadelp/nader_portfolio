@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import type { NavItem } from "@/components/layout/types";
 import { Reveal } from "@/components/layout/Reveal";
+import { NAV_ITEMS } from "@/components/site/nav-items";
 import { PhoneStrip } from "@/components/site/PhoneStrip";
 import { PipelineFigure } from "@/components/site/PipelineFigure";
 import { SiteNav } from "@/components/site/SiteNav";
@@ -18,7 +18,10 @@ import {
   adaptedProfile as profile,
   caseStudyRoles,
   caseStudyScreenshots,
+  contactHref,
   erpScreenshots,
+  getGlance,
+  processContent,
   getWorkCard,
   mobileScreenshots,
   secondaryMetrics,
@@ -43,9 +46,32 @@ type Params = { params: Promise<{ slug: string }> };
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const card = getWorkCard((await params).slug);
   if (!card) return {};
+  // A child's `openGraph` replaces the layout's rather than merging with it,
+  // so the preview image is set here too: the project's own cover when it has
+  // one, which makes a pasted link show the work rather than the portrait.
+  const title = `${card.title} — ${profile.name}`;
+  const image =
+    card.cover.type === "image"
+      ? { url: card.cover.shot.src, width: card.cover.shot.width, height: card.cover.shot.height, alt: card.title }
+      : { url: "/og.jpg", width: 2400, height: 1260, alt: card.title };
+
   return {
-    title: `${card.title} — ${profile.name}`,
+    title,
     description: card.summary,
+    alternates: { canonical: `/work/${card.slug}` },
+    openGraph: {
+      title,
+      description: card.summary,
+      type: "article",
+      url: `/work/${card.slug}`,
+      images: [image],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description: card.summary,
+      images: [image.url],
+    },
   };
 }
 
@@ -55,13 +81,6 @@ const CONTAINER = "mx-auto w-full max-w-6xl px-5 sm:px-8 lg:px-12";
 const BACK_LINK =
   "inline-flex items-center gap-2 border border-hairline-strong bg-surface/60 px-3.5 py-2 font-mono text-label text-fg no-underline transition-colors duration-200 hover:border-accent hover:text-accent motion-reduce:transition-none";
 
-const NAV_ITEMS: readonly NavItem[] = [
-  { id: "about", label: "About" },
-  { id: "work", label: "Work" },
-  { id: "experience", label: "Experience" },
-  { id: "stack", label: "Stack" },
-  { id: "contact", label: "Contact" },
-];
 
 export default async function WorkPage({ params }: Params) {
   const { slug } = await params;
@@ -69,6 +88,7 @@ export default async function WorkPage({ params }: Params) {
   if (!card) notFound();
 
   const index = workCards.indexOf(card);
+  const glance = getGlance(slug);
   const next = workCards[(index + 1) % workCards.length];
 
   return (
@@ -105,6 +125,8 @@ export default async function WorkPage({ params }: Params) {
             </p>
           </div>
 
+          {glance ? <Glance glance={glance} /> : null}
+
           {card.kind === "case-study" ? <CaseStudyBody slug={slug} /> : null}
           {card.kind === "contribution" ? <ContributionBody slug={slug} /> : null}
           {card.kind === "own-project" ? <CarTrackerBody /> : null}
@@ -120,9 +142,31 @@ export default async function WorkPage({ params }: Params) {
         ) : null}
 
         <div className={CONTAINER}>
+          {/* The page has just made the case; give the reader somewhere to go
+              with it that is not the back button. */}
+          <section
+            aria-label="Hire me"
+            className="mt-24 flex flex-col gap-5 border border-hairline bg-surface/50 p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8"
+          >
+            <div>
+              <p className="text-lg font-semibold text-fg">
+                Need something like this built?
+              </p>
+              <p className="mt-1 text-fg-secondary">
+                {processContent.availability}.
+              </p>
+            </div>
+            <a
+              href={contactHref}
+              className="inline-flex shrink-0 items-center self-start bg-accent px-5 py-3 text-sm font-semibold text-accent-ink no-underline transition-colors duration-200 hover:bg-accent-hover motion-reduce:transition-none sm:self-auto"
+            >
+              Start a project
+            </a>
+          </section>
+
           <nav
             aria-label="More work"
-            className="mt-24 flex flex-wrap items-center justify-between gap-4 border-t border-hairline pt-8"
+            className="mt-12 flex flex-wrap items-center justify-between gap-4 border-t border-hairline pt-8"
           >
             <Link href="/#work" className={BACK_LINK}>
               <span aria-hidden="true">←</span> All work
@@ -142,6 +186,33 @@ export default async function WorkPage({ params }: Params) {
         </div>
       </main>
     </>
+  );
+}
+
+/**
+ * The ten-second version, for a reader who is not going to read the rest:
+ * what was wrong, what I built, what changed.
+ */
+function Glance({
+  glance,
+}: {
+  glance: { problem: string; built: string; result: string };
+}) {
+  const rows = [
+    ["The problem", glance.problem],
+    ["What I built", glance.built],
+    ["The result", glance.result],
+  ] as const;
+
+  return (
+    <dl className="mt-10 grid gap-px border border-hairline bg-hairline md:grid-cols-3">
+      {rows.map(([label, text]) => (
+        <div key={label} className="bg-surface/60 p-5 sm:p-6">
+          <dt className="font-mono text-micro uppercase text-accent">{label}</dt>
+          <dd className="mt-2 text-fg">{text}</dd>
+        </div>
+      ))}
+    </dl>
   );
 }
 

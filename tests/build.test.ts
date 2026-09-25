@@ -99,6 +99,23 @@ describe("static export build", () => {
     }
   });
 
+  it("emits robots.txt, a sitemap listing every project, and structured data", () => {
+    const robots = readFileSync(join(OUT_DIR, "robots.txt"), "utf8");
+    expect(robots).toMatch(/Sitemap: \S+\/sitemap\.xml/);
+
+    const sitemap = readFileSync(join(OUT_DIR, "sitemap.xml"), "utf8");
+    const pages = sitemap.match(/<loc>[^<]+\/work\/[a-z0-9-]+<\/loc>/g) ?? [];
+    expect(pages.length, "Every project page belongs in the sitemap.").toBeGreaterThanOrEqual(7);
+
+    // The JSON-LD must parse, and must describe a person with services.
+    const html = readFileSync(join(OUT_DIR, "index.html"), "utf8");
+    const raw = html.match(/<script type="application\/ld\+json">([^<]+)<\/script>/)?.[1];
+    expect(raw, "Expected JSON-LD on the home page.").toBeTruthy();
+    const data = JSON.parse(raw!);
+    expect(data["@type"]).toBe("Person");
+    expect(data.makesOffer.length).toBeGreaterThanOrEqual(3);
+  });
+
   it("emits the 404 page and copies the public assets a visitor can click", () => {
     expect(existsSync(join(OUT_DIR, "404.html"))).toBe(true);
 

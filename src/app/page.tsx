@@ -1,16 +1,21 @@
-import type { NavItem, SectionId } from "@/components/layout/types";
+import type { SectionId } from "@/components/layout/types";
 import { Reveal } from "@/components/layout/Reveal";
 import { Hero } from "@/components/site/Hero";
+import { NAV_ITEMS } from "@/components/site/nav-items";
 import { PipelineFigure } from "@/components/site/PipelineFigure";
+import { Process } from "@/components/site/Process";
 import { ScrollProgress } from "@/components/site/ScrollProgress";
 import { SiteNav } from "@/components/site/SiteNav";
+import { Services } from "@/components/site/Services";
 import { SiteSection } from "@/components/site/SiteSection";
 import { StackTicker } from "@/components/site/StackTicker";
 import { CopyEmailButton } from "@/components/ui/CopyEmailButton";
 import { ExternalLink } from "@/components/ui/ExternalLink";
 import { TechTagList } from "@/components/ui/TechTag";
 import { WorkGrid } from "@/components/work/WorkGrid";
-import { hero } from "@/content/profile";
+import { hero, profile as profileContent } from "@/content/profile";
+import { services } from "@/content/freelance";
+import { SITE_URL } from "@/lib/site-url";
 import {
   aboutParagraphs,
   adaptedContact as contact,
@@ -18,26 +23,55 @@ import {
   adaptedProfile as profile,
   adaptedRepos as repos,
   adaptedStack as stack,
+  contactHref,
   cvLinks,
+  processContent,
+  serviceCards,
   workCards,
 } from "@/lib/portfolio";
 
+/**
+ * Structured data for search engines: who this is, what they offer, and where
+ * else they are. Built from the same content the page renders, so the two
+ * cannot say different things. `<` is escaped so no string in the data can
+ * close the script tag.
+ */
+const PERSON_JSON_LD = JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": "Person",
+  name: profileContent.name,
+  jobTitle: "Backend Developer",
+  url: SITE_URL.toString(),
+  email: `mailto:${profileContent.socials.find((s) => s.platform === "email")?.handle ?? ""}`,
+  address: {
+    "@type": "PostalAddress",
+    addressLocality: "Cairo",
+    addressCountry: "EG",
+  },
+  sameAs: profileContent.socials
+    .filter((s) => s.platform !== "email")
+    .map((s) => s.href),
+  knowsAbout: ["Laravel", "PHP", "Node.js", "TypeScript", "Next.js", "PostgreSQL", "API integration"],
+  makesOffer: services.map((service) => ({
+    "@type": "Offer",
+    itemOffered: {
+      "@type": "Service",
+      name: service.title,
+      description: service.summary,
+    },
+  })),
+}).replace(/</g, "\\u003c");
+
 /** Every section the scroll-spy observes, in document order. */
 const SECTION_IDS: readonly SectionId[] = [
+  "services",
+  "work",
+  "process",
   "about",
   "pipeline",
-  "work",
   "experience",
   "stack",
   "contact",
-];
-
-const NAV_ITEMS: readonly NavItem[] = [
-  { id: "about", label: "About" },
-  { id: "work", label: "Work" },
-  { id: "experience", label: "Experience" },
-  { id: "stack", label: "Stack" },
-  { id: "contact", label: "Contact" },
 ];
 
 /**
@@ -54,6 +88,11 @@ const DIMMING_ROW = [
 export default function Home() {
   return (
     <>
+      <script
+        type="application/ld+json"
+        // Static, build-time data from our own content files; see above.
+        dangerouslySetInnerHTML={{ __html: PERSON_JSON_LD }}
+      />
       <ScrollProgress />
       <SiteNav
         monogram="NA"
@@ -76,28 +115,21 @@ export default function Home() {
           availability={hero.availability}
           stats={hero.stats}
           portraitSrc={hero.portraitSrc}
-          cvHref={profile.cvHref}
+          contactHref={contactHref}
         />
 
-        {/* --- About ---------------------------------------------------- */}
+        {/* --- Services -------------------------------------------------- */}
+        {/* First, because it is the question a client arrives with. Each
+            service links to the projects that prove it. */}
         <SiteSection
-          id="about"
+          id="services"
           index="01"
-          eyebrow="About"
-          title="Most of what I build runs after the response has already gone out."
-          standfirst="Where I learned this, and what it taught me."
+          eyebrow="Services"
+          title="What you can hire me for."
+          standfirst="Backend work, remote, about 20 hours a week. Each one links to where I have done it."
         >
-          <Reveal>
-            <div className="max-w-measure space-y-5 text-fg-secondary">
-              {aboutParagraphs.map((paragraph) => (
-                <p key={paragraph.slice(0, 40)}>{paragraph}</p>
-              ))}
-            </div>
-          </Reveal>
+          <Services items={serviceCards} />
         </SiteSection>
-
-        {/* --- The signature figure -------------------------------------- */}
-        <PipelineFigure />
 
         {/* --- Work ------------------------------------------------------ */}
         {/* Every project in one place: case studies, work inside shared
@@ -159,12 +191,43 @@ export default function Home() {
           ) : null}
         </SiteSection>
 
+        {/* --- Process ------------------------------------------------- */}
+        <SiteSection
+          id="process"
+          index="03"
+          eyebrow="How I work"
+          title="Start small, see progress every week."
+          standfirst={processContent.availability}
+        >
+          <Process content={processContent} />
+        </SiteSection>
+
+        {/* --- About ---------------------------------------------------- */}
+        <SiteSection
+          id="about"
+          index="04"
+          eyebrow="About"
+          title="Most of what I build runs after the response has already gone out."
+          standfirst="Where I learned this, and what it taught me."
+        >
+          <Reveal>
+            <div className="max-w-measure space-y-5 text-fg-secondary">
+              {aboutParagraphs.map((paragraph) => (
+                <p key={paragraph.slice(0, 40)}>{paragraph}</p>
+              ))}
+            </div>
+          </Reveal>
+        </SiteSection>
+
+        {/* --- The signature figure -------------------------------------- */}
+        <PipelineFigure />
+
         {/* --- Experience ------------------------------------------------ */}
         <SiteSection
           id="experience"
-          index="03"
+          index="05"
           eyebrow="Experience"
-          title="A year and a half inside other people's modules."
+          title="A year and a half shipping inside a 40-engineer codebase."
           standfirst="Where the work happened, and what I owned."
         >
           {/* Centre spine on wide screens, left rail on narrow. */}
@@ -219,7 +282,7 @@ export default function Home() {
         {/* --- Stack ------------------------------------------------------ */}
         <SiteSection
           id="stack"
-          index="04"
+          index="06"
           eyebrow="Stack"
           title="What I actually use, and what I am only learning."
           standfirst="No percentages. No star ratings. The learning group says so."
@@ -230,7 +293,7 @@ export default function Home() {
         {/* --- Contact ---------------------------------------------------- */}
         <SiteSection
           id="contact"
-          index="05"
+          index="07"
           eyebrow="Contact"
           title={contact.heading}
         >
@@ -238,18 +301,18 @@ export default function Home() {
             <p className="max-w-measure text-fg-secondary">{contact.body}</p>
 
             <div className="mt-8 flex flex-wrap items-center gap-3">
-              <CopyEmailButton email={contact.email} />
-              <ExternalLink
-                href={`mailto:${contact.email}`}
-                className="no-underline"
+              <a
+                href={contactHref}
+                className="inline-flex items-center bg-accent px-5 py-3 text-sm font-semibold text-accent-ink no-underline transition-colors duration-200 hover:bg-accent-hover motion-reduce:transition-none"
               >
-                Open in mail client
-              </ExternalLink>
+                Start a project
+              </a>
+              <CopyEmailButton email={contact.email} />
             </div>
 
             <div className="mt-12">
               <h3 className="font-mono text-micro uppercase text-fg-muted">
-                Curriculum vitae
+                Hiring full-time? The CV
               </h3>
               <ul className="mt-5 grid gap-px border border-hairline bg-hairline sm:grid-cols-2">
                 {cvLinks.map((cv) => (

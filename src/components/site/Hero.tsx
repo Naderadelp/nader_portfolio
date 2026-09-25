@@ -1,5 +1,5 @@
 import { Portrait } from "@/components/site/Portrait";
-import { ArrowUpRightIcon, DownloadIcon } from "@/components/ui/icons";
+import { ArrowUpRightIcon } from "@/components/ui/icons";
 
 export interface HeroStat {
   value: string;
@@ -14,7 +14,8 @@ interface HeroProps {
   availability: string;
   stats: readonly HeroStat[];
   portraitSrc: string;
-  cvHref: string;
+  /** The "start a project" link — a mailto with the subject filled in. */
+  contactHref: string;
 }
 
 /**
@@ -37,7 +38,7 @@ export function Hero({
   availability,
   stats,
   portraitSrc,
-  cvHref,
+  contactHref,
 }: HeroProps) {
   return (
     <section
@@ -70,22 +71,22 @@ export function Hero({
             {lead}
           </p>
 
-          {/* Calls to action. */}
+          {/* Calls to action. Written for a client: the first thing they can
+              do is start a conversation. The CV is for employers and lives in
+              the Contact section. */}
           <div className="mt-9 flex flex-wrap items-center gap-3">
             <a
-              href="#work"
+              href={contactHref}
               className="group inline-flex items-center gap-2 bg-accent px-5 py-3 text-sm font-semibold text-accent-ink no-underline transition-colors duration-200 hover:bg-accent-hover motion-reduce:transition-none"
             >
-              See the work
+              Start a project
               <ArrowUpRightIcon className="size-4 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 motion-reduce:transition-none" />
             </a>
             <a
-              href={cvHref}
-              download
+              href="#services"
               className="inline-flex items-center gap-2 border border-hairline-strong px-5 py-3 text-sm font-medium text-fg no-underline transition-colors duration-200 hover:border-accent hover:text-accent motion-reduce:transition-none"
             >
-              <DownloadIcon className="size-4" />
-              Download CV
+              What I do
             </a>
           </div>
 
@@ -110,7 +111,7 @@ export function Hero({
             src={portraitSrc}
             alt={`${name}, backend software engineer`}
             name={name}
-            status="Open to work"
+            status="Available for freelance"
             className="mx-auto w-full max-w-sm lg:max-w-none"
           />
         </div>
