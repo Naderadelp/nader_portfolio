@@ -73,12 +73,30 @@ describe("static export build", () => {
     expect(html).toMatch(/<main[\s>]/);
     expect(html).toMatch(/<h1[\s>]/);
 
-    // The three hand-authored architecture diagrams are server-rendered SVG.
-    const diagrams = html.match(/<svg[^>]*role="img"/g) ?? [];
+    // Every project card is a real link in the markup, not a client render.
+    const cards = new Set(html.match(/href="\/work\/[a-z0-9-]+"/g) ?? []);
     expect(
-      diagrams.length,
-      "Expected the case-study diagrams to be present in the static HTML.",
-    ).toBeGreaterThanOrEqual(3);
+      cards.size,
+      "Expected all seven Work cards to link to their project pages.",
+    ).toBeGreaterThanOrEqual(7);
+  });
+
+  it("exports a page per project, with each case-study diagram server-rendered", () => {
+    for (const slug of [
+      "property-portal-pipeline",
+      "erp-bidirectional-sync",
+      "derived-workflow-state",
+    ]) {
+      const file = join(OUT_DIR, "work", `${slug}.html`);
+      expect(existsSync(file), `out/work/${slug}.html is missing`).toBe(true);
+
+      // The hand-authored architecture diagram is SVG in the static HTML.
+      const html = readFileSync(file, "utf8");
+      expect(
+        (html.match(/<svg[^>]*role="img"/g) ?? []).length,
+        `Expected the diagram in the static HTML of /work/${slug}.`,
+      ).toBeGreaterThanOrEqual(1);
+    }
   });
 
   it("emits the 404 page and copies the public assets a visitor can click", () => {

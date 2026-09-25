@@ -19,6 +19,12 @@ interface SiteNavProps {
   /** Every section the spy observes, in document order. */
   sectionIds: readonly SectionId[];
   socials: readonly SocialLink[];
+  /**
+   * Prefix for the section links. Empty on the home page; "/" on a project
+   * page, so "Work" goes back to "/#work" rather than to an anchor that is
+   * not there.
+   */
+  hrefBase?: string;
 }
 
 /**
@@ -40,6 +46,7 @@ export function SiteNav({
   items,
   sectionIds,
   socials,
+  hrefBase = "",
 }: SiteNavProps) {
   const active = useActiveSection(sectionIds);
 
@@ -52,7 +59,7 @@ export function SiteNav({
         >
           {/* Monogram — also the "back to top" affordance. */}
           <a
-            href="#top"
+            href={`${hrefBase}#top`}
             className="group flex shrink-0 items-center gap-2.5 no-underline"
           >
             <span
@@ -73,7 +80,7 @@ export function SiteNav({
               return (
                 <li key={item.id}>
                   <a
-                    href={`#${item.id}`}
+                    href={`${hrefBase}#${item.id}`}
                     aria-current={isActive ? "true" : undefined}
                     className={cn(
                       "block px-3 py-1 font-mono text-micro uppercase no-underline transition-colors duration-200 motion-reduce:transition-none",

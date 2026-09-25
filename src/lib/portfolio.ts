@@ -14,6 +14,7 @@
 
 import {
   caseStudies,
+  contributions,
   experience,
   profile,
   projects,
@@ -29,6 +30,7 @@ import type {
   RepoCard,
   ScreenShot,
   StackGroup,
+  WorkCard,
 } from '@/components/layout/types';
 
 /* -------------------------------------------------------------------------- */
@@ -326,6 +328,53 @@ export const erpScreenshots: ScreenShot[] = [
   },
 ];
 
+/**
+ * Desktop screens for case studies, where there is something showable.
+ *
+ * All from staging on seed data, with the portal's name and its property ID
+ * blurred. The appraisal module beside the objectives is not included: blame
+ * gives me about 1% of its front end, so it is not mine to show. Nor is the
+ * employee list, whose rows are real-looking people.
+ */
+export const caseStudyScreenshots: Record<string, ScreenShot[]> = {
+  'property-portal-pipeline': [
+    {
+      src: '/screenshots/listings/listing-publish-status.jpg',
+      alt: 'Listing table with a publish-status column showing Active, Rejected, Failed and Not set badges, and an error column with the portal’s rejection reasons, such as an invalid permit number.',
+      caption:
+        'Every listing’s publish state, with the portal’s own rejection reason beside it — what an agent reads instead of a stack trace. Portal name blurred.',
+      width: 1500,
+      height: 670,
+    },
+    {
+      src: '/screenshots/listings/listing-publish-state.jpg',
+      alt: 'Publish-state panel for a single listing: status Active, the portal’s property ID (blurred) and the published-at time, under the note "Mirrored from the last sync — sends no webhooks".',
+      caption:
+        'The state on one listing is a mirror, and says so: the portal sends no webhooks, so this is what the last reconcile sweep found.',
+      width: 1716,
+      height: 270,
+    },
+  ],
+  'derived-workflow-state': [
+    {
+      src: '/screenshots/objectives/objectives-approved-locked.jpg',
+      alt: 'My Objectives for 2026-H2 marked "Approved & locked": three weighted objectives adding to 100%, and below them an advisory AI quality check flagging objectives that are not SMART.',
+      caption:
+        'Approved and locked — the stage shown here is derived, not stored. The AI quality check underneath is advisory only: it flags objectives that are not SMART and never blocks a submission.',
+      width: 730,
+      height: 845,
+    },
+    {
+      src: '/screenshots/objectives/objectives-submission-status.jpg',
+      alt: 'Submission status for a manager: 13 of 45 submitted, 32 not submitted, 45 in scope, and a button to remind all 32.',
+      caption:
+        'Submission progress across one manager’s reporting line, and a single reminder for everyone still outstanding. Staging data.',
+      width: 1690,
+      height: 180,
+    },
+  ],
+};
+
 export const adaptedCarTracker: CarTracker = {
   title: carTrackerProject?.name ?? 'car-tracker',
   description: carTrackerProject?.summary ?? '',
@@ -334,6 +383,107 @@ export const adaptedCarTracker: CarTracker = {
   repoUrl: carTrackerProject?.repoUrl ?? 'https://github.com/Naderadelp/car-tracker',
   screenshots: SCREENSHOTS,
 };
+
+/* -------------------------------------------------------------------------- */
+/* Work grid                                                                   */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * The size of each claim, cut down to one line for a card. The full
+ * authorship statement is on the project's own page; these must never say
+ * more than it does.
+ */
+const CARD_CLAIMS: Record<string, string> = {
+  'property-portal-pipeline': 'Sole author · 20,665 lines',
+  'erp-bidirectional-sync': 'Primary author · ~73%',
+  'derived-workflow-state': 'Primary author · ~85%',
+  'service-desk-sla': '12% of backend · 56% of requester UI',
+  tenders: '~41% of the module backend',
+  'task-management': '~18% of the domain',
+  'car-tracker': 'Own project · public repo',
+};
+
+/**
+ * Covers for the cards. Case studies with no showable UI get one figure from
+ * their own metrics list — the same number, never a new one.
+ */
+const CARD_COVERS: Record<string, WorkCard['cover']> = {
+  'property-portal-pipeline': {
+    type: 'image',
+    shot: {
+      src: '/screenshots/listings/listing-publish-status.jpg',
+      alt: '',
+      width: 1500,
+      height: 670,
+    },
+  },
+  'erp-bidirectional-sync': { type: 'image', shot: erpScreenshots[0] },
+  'derived-workflow-state': {
+    type: 'image',
+    shot: {
+      src: '/screenshots/objectives/objectives-approved-locked.jpg',
+      alt: '',
+      width: 730,
+      height: 845,
+    },
+  },
+  tenders: {
+    type: 'image',
+    shot: contributions.find((c) => c.id === 'tenders')!.screenshots[1],
+  },
+  'car-tracker': { type: 'phones', shots: mobileScreenshots },
+};
+
+function claimFor(slug: string): string {
+  const claim = CARD_CLAIMS[slug];
+  if (!claim) throw new Error(`No card claim for "${slug}" in CARD_CLAIMS.`);
+  return claim;
+}
+
+/**
+ * Every project, in reading order: the three case studies, the three
+ * contributions, then car-tracker. The order is the argument — largest
+ * ownership first.
+ */
+export const workCards: WorkCard[] = [
+  ...caseStudies.map((study) => ({
+    slug: study.slug,
+    kind: 'case-study' as const,
+    kindLabel: 'Case study',
+    title: study.title,
+    summary: study.subtitle,
+    claim: claimFor(study.slug),
+    tech: study.stack.slice(0, 4),
+    cover: CARD_COVERS[study.slug],
+  })),
+  ...contributions.map((item) => ({
+    slug: item.id,
+    kind: 'contribution' as const,
+    kindLabel: 'Shared codebase',
+    title: item.title,
+    summary: item.context,
+    claim: claimFor(item.id),
+    tech: item.tech.slice(0, 4),
+    cover: CARD_COVERS[item.id] ?? {
+      type: 'image' as const,
+      shot: item.screenshots.find((s) => s.width > 1200) ?? item.screenshots[0],
+    },
+  })),
+  {
+    slug: 'car-tracker',
+    kind: 'own-project',
+    kindLabel: 'Own project',
+    title: adaptedCarTracker.title,
+    summary: adaptedCarTracker.description,
+    claim: claimFor('car-tracker'),
+    tech: adaptedCarTracker.tech.slice(0, 4),
+    cover: CARD_COVERS['car-tracker'],
+  },
+];
+
+export function getWorkCard(slug: string): WorkCard | undefined {
+  return workCards.find((card) => card.slug === slug);
+}
 
 /* -------------------------------------------------------------------------- */
 /* Stack                                                                       */

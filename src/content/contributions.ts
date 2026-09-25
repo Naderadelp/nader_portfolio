@@ -57,11 +57,11 @@ export const contributions = [
       },
       {
         src: '/screenshots/service-desk/service-desk-my-requests.jpg',
-        alt: 'My Requests page with status filters for open, in progress, pending, resolved, closed and cancelled, a "Breached only" toggle, and an empty state.',
+        alt: 'My Requests list with status filters and a "Breached only" toggle. Several open tickets carry a red "SLA breached" badge and a red edge; cancelled ones do not.',
         caption:
-          'The requester’s list. "Breached only" uses the pause-aware check, so a request waiting on its requester never shows as late.',
-        width: 735,
-        height: 410,
+          'The requester’s list. A cancelled ticket is never marked breached, and one waiting on its requester would not be either — the check follows the paused clock.',
+        width: 730,
+        height: 915,
       },
     ],
   },

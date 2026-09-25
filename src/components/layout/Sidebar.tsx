@@ -11,13 +11,12 @@ import {
 import { useActiveSection } from "./useActiveSection";
 import type { NavItem, Profile, SectionId } from "./types";
 
-/** Document order. `car-tracker` has no nav entry; it reports as "work". */
+/** Document order. */
 const SPY_SECTIONS: readonly SectionId[] = [
   "about",
   "experience",
   "work",
   "stack",
-  "car-tracker",
   "contact",
 ];
 

@@ -7,7 +7,7 @@ export const caseStudies = [
     title: 'Property-portal publishing pipeline',
     subtitle:
       'Publishing a Cairo real-estate group’s CRM inventory to a major property portal, over an integration where the portal never pushes anything back.',
-    role: 'Sole author: 20,665 lines across 96 files, 35 of them test files.',
+    role: 'Sole author: 20,665 lines across 96 files, 35 of them test files — plus 10,923 of 10,928 lines of the listing screens’ front end.',
     stack: [
       'Laravel',
       'PHP',
@@ -135,7 +135,7 @@ export const caseStudies = [
     title: 'Derived workflow state',
     subtitle:
       'An HR appraisal objective-setting workflow whose stages are computed from evidence instead of stored in a status column.',
-    role: 'Primary author. About 85% of the subsystem: 2,334 of 2,731 lines across 17 files.',
+    role: 'Primary author. About 85% of the subsystem: 2,334 of 2,731 lines across 17 files, plus 2,725 of 5,698 lines of its front end.',
     stack: [
       'Laravel',
       'PHP',

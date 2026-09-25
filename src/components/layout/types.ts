@@ -12,25 +12,17 @@ export type SectionId =
   | "about"
   | "pipeline"
   | "work"
-  | "contributions"
   | "experience"
   | "stack"
-  | "car-tracker"
   | "contact";
 
 /**
  * Sections that get a nav entry.
  *
- * `pipeline`, `contributions` and `car-tracker` are deliberately absent. Each
- * belongs under a neighbour in the reader's mental model — the pipeline figure
- * is the argument the About section is making, and both contributions and
- * car-tracker are things Work is about. They report under those entries
- * through NAV_ALIAS rather than growing the nav to eight items.
+ * `pipeline` is deliberately absent: the figure is the argument the About
+ * section is making, so it reports under About through NAV_ALIAS.
  */
-export type NavSectionId = Exclude<
-  SectionId,
-  "car-tracker" | "pipeline" | "contributions"
->;
+export type NavSectionId = Exclude<SectionId, "pipeline">;
 
 export interface NavItem {
   id: NavSectionId;
@@ -149,6 +141,34 @@ export interface CarTracker {
   tech: string[];
   repoUrl: string;
   screenshots: ScreenShot[];
+}
+
+/**
+ * One card in the Work grid. Every project — case study, contribution or own
+ * project — is a card on the home page and a page of its own at
+ * `/work/<slug>`.
+ */
+export type WorkKind = "case-study" | "contribution" | "own-project";
+
+export interface WorkCard {
+  slug: string;
+  kind: WorkKind;
+  /** Mono label on the card, e.g. "Case study". */
+  kindLabel: string;
+  title: string;
+  /** One or two sentences. */
+  summary: string;
+  /** The size of the claim, short enough for one mono line. */
+  claim: string;
+  tech: string[];
+  /**
+   * A photo when one can be shown. Otherwise one measured figure from the
+   * project, set large — a diagram shrunk to card size is unreadable.
+   */
+  cover:
+    | { type: "image"; shot: ScreenShot }
+    | { type: "phones"; shots: ScreenShot[] }
+    | { type: "figure"; value: string; label: string };
 }
 
 export interface Contact {

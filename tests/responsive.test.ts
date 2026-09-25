@@ -69,7 +69,7 @@ afterAll(async () => {
   await site?.close();
 });
 
-async function openAt(width: number): Promise<Page> {
+async function openAt(width: number, path = "/"): Promise<Page> {
   const page = await browser.newPage();
   await page.setViewport({ width, height: 900, deviceScaleFactor: 2 });
   await page.evaluateOnNewDocument(() => {
@@ -77,15 +77,28 @@ async function openAt(width: number): Promise<Page> {
       localStorage.setItem("theme", "dark");
     } catch {}
   });
-  await page.goto(site.origin, { waitUntil: "networkidle0" });
+  await page.goto(`${site.origin}${path}`, { waitUntil: "networkidle0" });
   return page;
 }
 
-describe.each(WIDTHS)("at %ipx", (width) => {
+/**
+ * The home page, plus one project page of each kind: a case study with a
+ * phone strip, a contribution with wide screenshots, and car-tracker.
+ */
+const PATHS = [
+  "/",
+  "/work/erp-bidirectional-sync",
+  "/work/tenders",
+  "/work/car-tracker",
+] as const;
+
+const CASES = PATHS.flatMap((path) => WIDTHS.map((width) => [path, width] as const));
+
+describe.each(CASES)("%s at %ipx", (path, width) => {
   let page: Page;
 
   beforeAll(async () => {
-    page = await openAt(width);
+    page = await openAt(width, path);
   });
 
   afterAll(async () => {
@@ -112,6 +125,9 @@ describe.each(WIDTHS)("at %ipx", (width) => {
         // Elements inside an opted-in horizontal scroller are allowed to be
         // wider than the screen — that is what the scroller is for.
         if (el.closest("[data-allows-x-scroll]")) continue;
+        // Likewise inside a frame that clips its content on purpose — the
+        // zoomed screenshot covers on the Work cards.
+        if (el.closest("[data-clips-overflow]")) continue;
 
         const rect = el.getBoundingClientRect();
         if (rect.width === 0 && rect.height === 0) continue;

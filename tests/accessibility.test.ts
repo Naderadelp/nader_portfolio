@@ -1,9 +1,10 @@
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 import { createRequire } from "node:module";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import puppeteer, { type Browser, type Page } from "puppeteer-core";
 
-import { requireBuiltOutput } from "./helpers/paths";
+import { OUT_DIR, requireBuiltOutput } from "./helpers/paths";
 import { contrastRatio, serveStatic, type StaticSite } from "./helpers/static-server";
 
 /**
@@ -106,7 +107,10 @@ afterAll(async () => {
   await site?.close();
 });
 
-async function openPage(theme: "light" | "dark"): Promise<Page> {
+async function openPage(
+  theme: "light" | "dark",
+  path = "/",
+): Promise<Page> {
   const page = await browser.newPage();
   await page.setViewport({ width: 1280, height: 900 });
 
@@ -134,7 +138,7 @@ async function openPage(theme: "light" | "dark"): Promise<Page> {
     // Reduced motion off, so nothing is mid-animation when axe samples colours.
     { name: "prefers-reduced-motion", value: "no-preference" },
   ]);
-  await page.goto(`${site.origin}/`, { waitUntil: "networkidle0" });
+  await page.goto(`${site.origin}${path}`, { waitUntil: "networkidle0" });
   return page;
 }
 
@@ -260,6 +264,35 @@ describe.each(["light", "dark"] as const)("axe-core — %s theme", (theme) => {
       `axe-core found ${unexpected.length} serious/critical violation(s) in ` +
         `the ${theme} theme:\n\n${report}`,
     ).toBe("");
+  });
+});
+
+/**
+ * Every project page, not a sample: each kind renders a different body
+ * (case study, contribution, own project), and each has its own screenshots.
+ * One theme is enough here — the theme itself is covered above.
+ */
+const WORK_PATHS = readdirSync(join(OUT_DIR, "work"))
+  .filter((f) => f.endsWith(".html"))
+  .map((f) => `/work/${f.replace(/\.html$/, "")}`);
+
+describe("project pages", () => {
+  it("were all exported (guards a vacuous run)", () => {
+    expect(WORK_PATHS.length).toBeGreaterThanOrEqual(7);
+  });
+
+  it.each(WORK_PATHS)("%s has no serious or critical violations", async (path) => {
+    const page = await openPage("dark", path);
+    try {
+      const unexpected = (await runAxe(page)).filter((v) => v.nodes.length > 0);
+      const report = describeViolations(unexpected);
+      expect(report, `axe-core found violations on ${path}:\n\n${report}`).toBe("");
+
+      const h1s = await page.evaluate(() => document.querySelectorAll("h1").length);
+      expect(h1s, `${path} should have exactly one <h1>`).toBe(1);
+    } finally {
+      await page.close();
+    }
   });
 });
 
