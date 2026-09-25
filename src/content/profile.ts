@@ -1,5 +1,30 @@
 import type { Profile } from '@/content/types';
 
+/**
+ * First-screen copy.
+ *
+ * The headline is the tagline's second half, cut in two and set as a claim.
+ * "Integrations, queues, and state that stays correct after the request ends"
+ * is accurate but it is a description; "The request ends. The work doesn't."
+ * is the same idea as an argument, and it is the one sentence that separates
+ * this kind of engineering from the kind everyone else's portfolio shows.
+ *
+ * Every figure in `stats` is countable and appears again, with its method, in
+ * the case study it came from.
+ */
+export const hero = {
+  headline: ['The request ends.', "The work doesn't."],
+  lead: `I build the integrations, queues and reconciliation sweeps that keep two systems telling the same story — inside a Laravel modular monolith of 127 bounded contexts, used by about 5,000 people across four companies.`,
+  availability: 'Open to remote work · Cairo, GMT+3',
+  stats: [
+    { value: '20,665', label: 'Lines, sole author' },
+    { value: '127', label: 'Bounded contexts' },
+    { value: '~5,000', label: 'Platform users' },
+    { value: '35', label: 'Test files' },
+  ],
+  portraitSrc: '/portrait.jpg',
+} as const;
+
 export const profile = {
   name: 'Nader Adel',
   role: 'Backend Software Engineer',

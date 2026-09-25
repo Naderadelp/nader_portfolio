@@ -1,5 +1,14 @@
 import { cn } from "@/components/ui/cn";
-import { DiagramFrame, Edge, Label, Legend, Node } from "./primitives";
+import {
+  DiagramFrame,
+  Edge,
+  Label,
+  Legend,
+  NARROW_W,
+  Node,
+  NLabel,
+  NNode,
+} from "./primitives";
 
 const TITLE = "Bidirectional ERP sync";
 
@@ -137,90 +146,121 @@ function Wide() {
 
 function Narrow() {
   const id = "erp-n";
-  const x = 16;
-  const w = 272;
-  const cx = 152;
+  // Same 240-unit canvas and channel geometry as the other two narrow
+  // variants — see NARROW in primitives for why 240 rather than 360.
+  const x = 8;
+  const w = 200;
+  const cx = x + w / 2; // 108
+  const right = x + w; // 208
+  const chan = 218; // the one vertical channel, shared by both loop-backs
+  const chanLabel = 232; // rotated-label baseline
+
+  const h1 = 46; // heading + one sub-line
+  const h2 = 60; // heading + two
 
   return (
     <DiagramFrame
       id={id}
-      viewBox="0 0 360 980"
+      viewBox={`0 0 ${NARROW_W} 972`}
       title={TITLE}
       desc={DESC}
       className="block max-w-[27rem] @4xl:hidden"
     >
-      <Label x={16} y={20} anchor="start" tone="ink">
+      <NLabel x={x} y={16} anchor="start" tone="ink">
         OUTBOUND · app → ERP
-      </Label>
+      </NLabel>
 
-      <Node x={x} y={34} w={w} h={48} title="Model write" lines={["create / update"]} />
-      <Edge id={id} d={`M ${cx} 82 V 106`} />
-      <Node x={x} y={106} w={w} h={52} tone="accent" title="Observer" lines={["saved() hook"]} />
-      <Edge id={id} d={`M ${cx} 158 V 182`} />
-      <Node x={x} y={182} w={w} h={48} title="PushJob" lines={["queued"]} />
-      <Edge id={id} d={`M ${cx} 230 V 254`} />
-      <Node x={x} y={254} w={w} h={48} title="ERP client" lines={["typed DTOs"]} />
-      <Edge id={id} d={`M ${cx} 302 V 326`} />
-      <Node x={x} y={326} w={w} h={48} tone="ext" title="ERP" lines={["remote system"]} />
+      <NNode x={x} y={28} w={w} h={h1} title="Model write" lines={["create / update"]} />
+      <Edge id={id} d={`M ${cx} 74 V 98`} />
+      <NNode x={x} y={98} w={w} h={h1} tone="accent" title="Observer" lines={["saved() hook"]} />
+      <Edge id={id} d={`M ${cx} 144 V 168`} />
+      <NNode x={x} y={168} w={w} h={h1} title="PushJob" lines={["queued"]} />
+      <Edge id={id} d={`M ${cx} 214 V 238`} />
+      <NNode x={x} y={238} w={w} h={h1} title="ERP client" lines={["typed DTOs"]} />
+      <Edge id={id} d={`M ${cx} 284 V 308`} />
+      <NNode x={x} y={308} w={w} h={h1} tone="ext" title="ERP" lines={["remote system"]} />
 
       {/* ERP answers with a remote id, which is stored without firing model events */}
-      <Edge id={id} kind="accent" d={`M ${cx} 374 V 390`} />
-      <Node
+      <Edge id={id} kind="accent" d={`M ${cx} 354 V 372`} />
+      <NNode
         x={x}
-        y={390}
+        y={372}
         w={w}
-        h={64}
+        h={h2}
         tone="accent"
         title="saveQuietly()"
         lines={["remote id stored", "no model events fire"]}
       />
+      {/* Back up to the Observer (mid-height 121) — the hop that would be an
+          infinite loop if the write-back fired model events. */}
       <Edge
         id={id}
         kind="accent"
-        d="M 288 422 H 328 Q 336 422 336 414 V 140 Q 336 132 328 132 H 288"
+        d={`M ${right} 402 H 212 Q ${chan} 402 ${chan} 396 V 127 Q ${chan} 121 212 121 H ${right}`}
       />
-      <Label x={350} y={276} rotate={-90} tone="accent">
+      <NLabel x={chanLabel} y={262} rotate={-90} tone="accent">
         no infinite sync loop
-      </Label>
+      </NLabel>
 
-      <path d="M 16 478 H 344" className="ln" />
-      <Label x={16} y={500} anchor="start" tone="ink">
+      <path d={`M ${x} 452 H ${chanLabel}`} className="ln" />
+      <NLabel x={x} y={472} anchor="start" tone="ink">
         INBOUND · ERP → app
-      </Label>
+      </NLabel>
 
-      <Node x={x} y={512} w={w} h={48} tone="ext" title="ERP webhook" lines={["POST, unsolicited"]} />
-      <Edge id={id} d={`M ${cx} 560 V 584`} />
-      <Node x={x} y={584} w={w} h={48} title="API-key validator" lines={["401 otherwise"]} />
-      <Edge id={id} d={`M ${cx} 632 V 656`} />
-      <Node x={x} y={656} w={w} h={48} title="Webhook processor" lines={["queued job"]} />
-      <Edge id={id} d={`M ${cx} 704 V 728`} />
-      <Node x={x} y={728} w={w} h={48} title="Local upsert" lines={["match on remote id"]} />
-
-      <Edge id={id} d="M 60 800 V 776" />
-      <Label x={70} y={792} anchor="start">
-        upsert
-      </Label>
-      <Node
+      <NNode
         x={x}
-        y={800}
+        y={484}
         w={w}
-        h={88}
+        h={h1}
+        tone="ext"
+        title="ERP webhook"
+        lines={["POST, unsolicited"]}
+      />
+      <Edge id={id} d={`M ${cx} 530 V 554`} />
+      <NNode x={x} y={554} w={w} h={h1} title="API-key validator" lines={["401 otherwise"]} />
+      <Edge id={id} d={`M ${cx} 600 V 624`} />
+      <NNode x={x} y={624} w={w} h={h1} title="Webhook processor" lines={["queued job"]} />
+      <Edge id={id} d={`M ${cx} 670 V 694`} />
+      <NNode x={x} y={694} w={w} h={h1} title="Local upsert" lines={["match on remote id"]} />
+
+      <Edge id={id} d="M 40 776 V 740" />
+      <NLabel x={48} y={762} anchor="start">
+        upsert
+      </NLabel>
+      {/* The eight pulls, re-wrapped to five lines. The widest of the original
+          three ("vendors · visits · salespeople", 30 characters) is ~194 units
+          at size 11 and would sit 3 units off the 200-unit box's stroke; no
+          item is renamed or dropped, only the line breaks moved. h=108 is what
+          five 15-unit lines plus the heading need. */}
+      <NNode
+        x={x}
+        y={776}
+        w={w}
+        h={108}
         title="8 scheduled pulls"
         lines={[
-          "products · stock · categories",
-          "units of measure · locations",
-          "vendors · visits · salespeople",
+          "products · stock",
+          "categories",
+          "units of measure",
+          "locations · vendors",
+          "visits · salespeople",
         ]}
       />
 
-      <Edge id={id} kind="dash" d="M 288 752 H 328 V 934 H 288" />
-      <Node
+      {/* Every direction is recorded, so the dashed hop starts at Local upsert
+          (mid-height 717) and runs the channel past the pulls to SyncRun. */}
+      <Edge
+        id={id}
+        kind="dash"
+        d={`M ${right} 717 H 212 Q ${chan} 717 ${chan} 723 V 926 Q ${chan} 932 212 932 H ${right}`}
+      />
+      <NNode
         x={x}
-        y={906}
+        y={902}
         w={w}
-        h={56}
+        h={h2}
         title="SyncRun"
-        lines={["one row per push, webhook, pull"]}
+        lines={["one row per push,", "webhook, pull"]}
       />
     </DiagramFrame>
   );

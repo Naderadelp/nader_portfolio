@@ -1,5 +1,15 @@
 import { cn } from "@/components/ui/cn";
-import { DiagramFrame, Edge, Label, Legend, Node } from "./primitives";
+import {
+  DiagramFrame,
+  Edge,
+  Label,
+  Legend,
+  NARROW,
+  NARROW_W,
+  Node,
+  NLabel,
+  NNode,
+} from "./primitives";
 
 const TITLE = "Property portal publishing pipeline";
 
@@ -133,116 +143,137 @@ function Wide() {
 
 function Narrow() {
   const id = "pp-n";
-  const x = 16;
-  const w = 272;
-  const cx = 152;
+  // 240 units wide (see NARROW in primitives) so the drawing scales UP on a
+  // phone instead of down. Everything below is laid out against that budget:
+  //   8 .. 208   the single column of boxes (200 units ≈ 30 characters at 11)
+  //   218        the one vertical channel both loop-backs run in
+  //   232        the baseline rotated labels hang from, glyphs ≈ 224..235
+  const x = 8;
+  const w = 200;
+  const cx = x + w / 2; // 108
+  const right = x + w; // 208, where a loop-back leaves or re-enters the column
+  const chan = 218; // loop-back channel, 10 units clear of the boxes
+  const chanLabel = 232; // rotated-label baseline, 5 units clear of the channel
+
+  // Box heights at the narrow scale: a heading plus one sub-line needs 46
+  // units to keep 6 units of breathing room above the cap and below the
+  // descender; a heading plus two needs 60. Below that the text touches the
+  // stroke, which reads as a mistake rather than as density.
+  const h1 = 46;
+  const h2 = 60;
 
   return (
     <DiagramFrame
       id={id}
-      viewBox="0 0 360 880"
+      viewBox={`0 0 ${NARROW_W} 816`}
       title={TITLE}
       desc={DESC}
       className="block max-w-[27rem] @4xl:hidden"
     >
-      <Node x={x} y={20} w={w} h={48} title="Listing edited" lines={["property updated"]} />
-      <Edge id={id} kind="accent" d={`M ${cx} 68 V 96`} />
+      <NNode x={x} y={16} w={w} h={h1} title="Listing edited" lines={["property updated"]} />
+      <Edge id={id} kind="accent" d={`M ${cx} 62 V 86`} />
 
-      <Node
+      <NNode
         x={x}
-        y={96}
+        y={86}
         w={w}
-        h={56}
+        h={h1}
         title="ReadinessService"
         lines={["gate · 22 blocking reasons"]}
       />
-      <Edge id={id} kind="dash" d={`M ${cx} 152 V 186`} />
-      <Label x={162} y={172} anchor="start">
+      <Edge id={id} kind="dash" d={`M ${cx} 132 V 168`} />
+      <NLabel x={cx + 8} y={154} anchor="start">
         blocked
-      </Label>
-      <Node
+      </NLabel>
+      {/* Re-wrapped, not reworded: "blockers returned to the editor" is 31
+          characters, and 31 × ~0.59em at size 11 overruns a 200-unit box. */}
+      <NNode
         x={x}
-        y={186}
+        y={168}
         w={w}
-        h={58}
+        h={h2}
         tone="note"
         title="nothing is sent"
-        lines={["blockers returned to the editor"]}
+        lines={["blockers returned to", "the editor"]}
       />
 
-      {/* happy path steps around the refusal */}
+      {/* happy path steps around the refusal: out of the gate at its mid-height
+          (109), down the channel, back into PayloadBuilder at its mid (275) */}
       <Edge
         id={id}
         kind="accent"
-        d="M 288 124 H 312 Q 320 124 320 132 V 282 Q 320 290 312 290 H 288"
+        d={`M ${right} 109 H 212 Q ${chan} 109 ${chan} 115 V 269 Q ${chan} 275 212 275 H ${right}`}
       />
-      <Label x={336} y={205} rotate={-90} tone="accent">
+      <NLabel x={chanLabel} y={192} rotate={-90} tone="accent">
         passes gate
-      </Label>
+      </NLabel>
 
-      <Node x={x} y={266} w={w} h={48} title="PayloadBuilder" lines={["portal-shaped payload"]} />
-      <Edge id={id} kind="accent" d={`M ${cx} 314 V 338`} />
+      <NNode x={x} y={252} w={w} h={h1} title="PayloadBuilder" lines={["portal-shaped payload"]} />
+      <Edge id={id} kind="accent" d={`M ${cx} 298 V 322`} />
 
-      <Node x={x} y={338} w={w} h={52} title="PublishJob" lines={["queued"]} />
-      <Edge id={id} kind="accent" d={`M ${cx} 390 V 404`} marker={false} />
-      <Label x={cx} y={420} size={10.5} tone="ink">
+      <NNode x={x} y={322} w={w} h={h1} title="PublishJob" lines={["queued"]} />
+      <Edge id={id} kind="accent" d={`M ${cx} 368 V 382`} marker={false} />
+      <NLabel x={cx} y={400} size={NARROW.title} tone="ink">
         lockForUpdate
-      </Label>
-      <Label x={cx} y={434}>
+      </NLabel>
+      <NLabel x={cx} y={416}>
         one publish at a time
-      </Label>
-      <Edge id={id} kind="accent" d={`M ${cx} 442 V 462`} />
+      </NLabel>
+      <Edge id={id} kind="accent" d={`M ${cx} 424 V 444`} />
 
-      <Node x={x} y={462} w={w} h={52} title="RateLimitAware" lines={["Client"]} />
-      <Edge id={id} kind="accent" d={`M ${cx} 514 V 538`} />
+      <NNode x={x} y={444} w={w} h={h1} title="RateLimitAware" lines={["Client"]} />
+      <Edge id={id} kind="accent" d={`M ${cx} 490 V 514`} />
 
-      <Node
+      <NNode
         x={x}
-        y={538}
+        y={514}
         w={w}
-        h={52}
+        h={h1}
         tone="ext"
         title="External Portal API"
         lines={["pushes nothing back"]}
       />
 
-      {/* 429 back into the queue */}
+      {/* 429 back into the queue. Shares the channel with the gate bypass above
+          because the two never overlap vertically: the bypass lives in 109-275,
+          this one in 345-537. */}
       <Edge
         id={id}
         kind="dash"
-        d="M 288 564 H 324 Q 332 564 332 556 V 372 Q 332 364 324 364 H 288"
+        d={`M ${right} 537 H 212 Q ${chan} 537 ${chan} 531 V 351 Q ${chan} 345 212 345 H ${right}`}
       />
-      <Label x={348} y={464} rotate={-90}>
+      <NLabel x={chanLabel} y={441} rotate={-90}>
         429 · retry_after · backoff
-      </Label>
+      </NLabel>
 
       {/* reconcile */}
-      <Edge id={id} kind="dash" d="M 56 590 V 630" />
-      <Label x={66} y={614} anchor="start">
+      <Edge id={id} kind="dash" d="M 40 560 V 596" />
+      <NLabel x={48} y={582} anchor="start">
         reads portal
-      </Label>
-      <Node
+      </NLabel>
+      <NNode
         x={x}
-        y={630}
+        y={596}
         w={w}
-        h={58}
+        h={h1}
         title="Hourly reconcile sweep"
         lines={["scheduled command"]}
       />
-      <Edge id={id} d={`M ${cx} 688 V 716`} />
-      <Node x={x} y={716} w={w} h={58} title="PublicationState" lines={["corrected locally"]} />
+      <Edge id={id} d={`M ${cx} 642 V 666`} />
+      <NNode x={x} y={666} w={w} h={h1} title="PublicationState" lines={["corrected locally"]} />
 
-      <Label x={16} y={806} anchor="start">
+      <NLabel x={x} y={742} anchor="start">
         The portal pushes nothing back —
-      </Label>
-      <Label x={16} y={822} anchor="start">
+      </NLabel>
+      <NLabel x={x} y={758} anchor="start">
         the sweep is the only feedback.
-      </Label>
+      </NLabel>
 
       <Legend
-        x={16}
-        y={860}
-        gap={132}
+        x={x}
+        y={786}
+        size={NARROW.label}
+        stacked
         accentLabel="happy path"
         dashLabel="failure · retry"
       />

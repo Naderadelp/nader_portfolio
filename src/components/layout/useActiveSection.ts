@@ -6,6 +6,8 @@ import type { NavSectionId, SectionId } from "./types";
 /** Sections with no nav entry report under the entry they belong to. */
 const NAV_ALIAS: Partial<Record<SectionId, NavSectionId>> = {
   "car-tracker": "work",
+  contributions: "work",
+  pipeline: "about",
 };
 
 function toNavId(id: SectionId): NavSectionId {

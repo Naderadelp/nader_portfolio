@@ -163,3 +163,27 @@ export interface StackGroup {
   /** Flat tag list. Deliberately no ratings, levels or percentages. */
   items: string[];
 }
+
+/**
+ * A substantial contribution to a codebase someone else owns.
+ *
+ * Deliberately a different shape from CaseStudy: no Problem/Constraint/
+ * Approach/Trade-off/Outcome scaffolding, because that structure implies the
+ * author made those decisions. `authorship` is required and is expected to
+ * name the limit of the claim as well as its size.
+ */
+export interface Contribution {
+  id: string;
+  title: string;
+  context: string;
+  authorship: string;
+  paragraphs: string[];
+  tech: string[];
+  screenshot: {
+    src: string;
+    alt: string;
+    caption: string;
+    width: number;
+    height: number;
+  } | null;
+}

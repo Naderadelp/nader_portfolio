@@ -23,3 +23,4 @@ export { experience, education, languages } from '@/content/experience';
 export { caseStudies, caseStudiesBySlug, getCaseStudy } from '@/content/case-studies';
 export { projects } from '@/content/projects';
 export { stack, experienceStack, learningStack } from '@/content/stack';
+export { contributions } from './contributions';

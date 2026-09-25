@@ -75,8 +75,33 @@ Cloudflare's current build image (v3) defaults to Node **22.16.0**, so this is b
 v3 build system ignores `package.json` → `engines`, so `NODE_VERSION` (or a committed `.nvmrc`
 / `.node-version` file) is the only way to set this.
 
-The site itself needs no environment variables. There are no secrets, no API keys, and no
-`NEXT_PUBLIC_*` values — everything it renders is in the repository.
+There are no secrets and no API keys — everything the site renders is in the repository.
+
+### The social card, and the one variable that affects it
+
+`src/app/layout.tsx` sets `metadataBase` from the environment, in this order:
+
+1. `NEXT_PUBLIC_SITE_URL`, if set
+2. `CF_PAGES_URL`, which **Cloudflare sets automatically on every build**
+3. `http://localhost:3000`, for `npm run dev`
+
+So on Cloudflare this needs **no configuration**: production and every preview deployment each
+get their own correct absolute URL for `og:image`.
+
+This matters more than it looks. Next absolutises `og:image`, and with no base it falls back to
+`http://localhost:3000/og.jpg` — a card that is broken for every recipient, while the page
+itself looks perfect locally. The failure is invisible until someone pastes the link somewhere.
+
+**When a custom domain is added**, set `NEXT_PUBLIC_SITE_URL` to it (e.g.
+`https://naderadel.dev`) so the card and any canonical URLs point at the real host rather than
+at `*.pages.dev`. That is the only change the domain needs.
+
+**After deploying, check the card actually renders** by pasting the URL into
+<https://www.opengraph.xyz> or LinkedIn's Post Inspector. LinkedIn caches aggressively, so get
+it right before sharing the link widely.
+
+`public/og.jpg` is committed, not generated at build time. Regenerate it with
+`node scripts/make-og.mjs` if the headline or the portrait changes.
 
 Then select **Save and Deploy**.
 

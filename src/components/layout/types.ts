@@ -10,15 +10,27 @@
 /** Sections that the scroll-spy observes, in document order. */
 export type SectionId =
   | "about"
-  | "experience"
+  | "pipeline"
   | "work"
+  | "contributions"
+  | "experience"
   | "stack"
   | "car-tracker"
   | "contact";
 
-/** Sections that get a nav entry. `car-tracker` is deliberately absent — it
- *  reports as "work" in the active-section indicator. */
-export type NavSectionId = Exclude<SectionId, "car-tracker">;
+/**
+ * Sections that get a nav entry.
+ *
+ * `pipeline`, `contributions` and `car-tracker` are deliberately absent. Each
+ * belongs under a neighbour in the reader's mental model — the pipeline figure
+ * is the argument the About section is making, and both contributions and
+ * car-tracker are things Work is about. They report under those entries
+ * through NAV_ALIAS rather than growing the nav to eight items.
+ */
+export type NavSectionId = Exclude<
+  SectionId,
+  "car-tracker" | "pipeline" | "contributions"
+>;
 
 export interface NavItem {
   id: NavSectionId;

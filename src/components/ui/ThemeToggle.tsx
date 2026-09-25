@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useSyncExternalStore } from "react";
+import { useCallback, useSyncExternalStore } from "react";
 import { cn } from "./cn";
 import { MoonIcon, SunIcon } from "./icons";
 
@@ -14,14 +14,6 @@ function applyTheme(theme: Theme) {
   root.classList.toggle("light", theme === "light");
 }
 
-function readStored(): Theme | null {
-  try {
-    const value = window.localStorage.getItem(STORAGE_KEY);
-    return value === "dark" || value === "light" ? value : null;
-  } catch {
-    return null;
-  }
-}
 
 function writeStored(theme: Theme) {
   try {
@@ -65,17 +57,16 @@ export function ThemeToggle({ className }: { className?: string }) {
     readThemeOnServer,
   );
 
-  // Follow the OS while the reader has made no explicit choice.
-  useEffect(() => {
-    const query = window.matchMedia("(prefers-color-scheme: dark)");
-    const onChange = (event: MediaQueryListEvent) => {
-      if (readStored() !== null) return;
-      applyTheme(event.matches ? "dark" : "light");
-    };
-    query.addEventListener("change", onChange);
-    return () => query.removeEventListener("change", onChange);
-  }, []);
-
+  /**
+   * No OS listener.
+   *
+   * This used to follow `prefers-color-scheme` whenever the reader had made no
+   * explicit choice, to match the pre-paint script in layout.tsx. That script
+   * no longer consults the OS — dark is the site's default — so listening here
+   * would reintroduce exactly the behaviour that was removed: a reader who
+   * never touched the toggle would be flipped to light the moment their
+   * machine switched at sunset, mid-read.
+   */
   const toggle = useCallback(() => {
     const next: Theme = readThemeClass() === "dark" ? "light" : "dark";
     applyTheme(next);
