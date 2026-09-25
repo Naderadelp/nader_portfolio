@@ -115,20 +115,28 @@ export const contributions = [
     tech: ['Laravel', 'PHP', 'PostgreSQL', 'DDD-style layering', 'PHPUnit'],
     screenshots: [
       {
-        src: '/screenshots/tasks/tasks-list.jpg',
-        alt: 'Task workspace in list view, with tasks grouped by status — Backlog, To Do, In Progress, In Review, Done, Cancelled — and tabs for board, table, calendar, Gantt, workload, docs, sprints and goals.',
+        src: '/screenshots/tasks/tasks-my-work-open.jpg',
+        alt: 'My work: ten open tasks where the user is an assignee, grouped into Overdue and No Date, with status, assignees, priority, start, due date and estimate columns. Overdue tasks show how many days late they are.',
         caption:
-          'The workspace, on a staging test list. These views are my colleagues’ front end; my work is the API behind the Workload tab, membership and the cancellation guard.',
-        width: 1815,
-        height: 930,
+          'My work, on demo data — the view a lead’s assignment decisions end up in. The screens are colleagues’ front end; my part is the backend behind capacity, membership and cancellation.',
+        width: 1520,
+        height: 600,
       },
       {
-        src: '/screenshots/tasks/tasks-board.jpg',
-        alt: 'The same list as a board, one column per status, with a single test task in Backlog.',
+        src: '/screenshots/tasks/tasks-my-work-closed.jpg',
+        alt: 'My work filtered to closed tasks and grouped by project, with Done and Cancelled statuses across four demo projects.',
         caption:
-          'The same list as a board, one column per status.',
-        width: 1815,
-        height: 930,
+          'Closed work by project. Cancelled is its own outcome, and cancelling goes through the guard: a task other work depends on cannot be cancelled out from under it.',
+        width: 1520,
+        height: 920,
+      },
+      {
+        src: '/screenshots/tasks/tasks-inbox.jpg',
+        alt: 'Task inbox with two unread "Task Updated" notifications for demo tasks, and Unread, All and Archived filters.',
+        caption:
+          'The inbox. I wrote the feature tests that pin where each notification link lands, so a notification always opens the task it is about.',
+        width: 1520,
+        height: 200,
       },
     ],
   },
