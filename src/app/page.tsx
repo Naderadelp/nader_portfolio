@@ -17,6 +17,7 @@ import {
   ErpSyncDiagram,
   PublishPipelineDiagram,
 } from "@/components/diagrams";
+import { contributions } from "@/content/contributions";
 import { hero } from "@/content/profile";
 import {
   aboutParagraphs,
@@ -39,6 +40,7 @@ const SECTION_IDS: readonly SectionId[] = [
   "about",
   "pipeline",
   "work",
+  "contributions",
   "experience",
   "stack",
   "car-tracker",
@@ -286,10 +288,68 @@ export default function Home() {
           ) : null}
         </SiteSection>
 
+        {/* --- Contributions ---------------------------------------------- */}
+        <SiteSection
+          id="contributions"
+          index="03"
+          eyebrow="Inside other people's code"
+          title="Two systems I did not own, and what I landed in them."
+          standfirst="Stated at the size git blame supports, not larger."
+        >
+          <div className="space-y-20">
+            {contributions.map((item, index) => (
+              <Reveal key={item.id} as="article" delay={index * 40}>
+                <h3 className="text-section font-semibold text-fg">
+                  {item.title}
+                </h3>
+                <p className="mt-2 max-w-measure text-fg-secondary">
+                  {item.context}
+                </p>
+
+                {/* The limit of the claim, in the same place and the same
+                    treatment as the authorship line on a full case study. */}
+                <p className="mt-4 max-w-measure border-l-2 border-hairline-strong bg-surface/50 py-2 pl-3 pr-4 font-mono text-label text-fg-secondary">
+                  {item.authorship}
+                </p>
+
+                <div className="mt-8 max-w-measure space-y-4 text-fg-secondary">
+                  {item.paragraphs.map((paragraph, i) => (
+                    <p key={i}>{paragraph}</p>
+                  ))}
+                </div>
+
+                {item.screenshot ? (
+                  <figure className="mt-10">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={item.screenshot.src}
+                      alt={item.screenshot.alt}
+                      width={item.screenshot.width}
+                      height={item.screenshot.height}
+                      loading="lazy"
+                      decoding="async"
+                      className="w-full border border-hairline"
+                    />
+                    <figcaption className="mt-3 max-w-measure text-sm text-fg-secondary">
+                      {item.screenshot.caption}
+                    </figcaption>
+                  </figure>
+                ) : null}
+
+                <TechTagList
+                  items={item.tech}
+                  className="mt-8"
+                  label={`${item.title} — technologies`}
+                />
+              </Reveal>
+            ))}
+          </div>
+        </SiteSection>
+
         {/* --- Experience ------------------------------------------------ */}
         <SiteSection
           id="experience"
-          index="03"
+          index="04"
           eyebrow="Experience"
           title="A year and a half inside other people's modules."
           standfirst="Where the work happened, and what I owned."
@@ -346,7 +406,7 @@ export default function Home() {
         {/* --- Stack ------------------------------------------------------ */}
         <SiteSection
           id="stack"
-          index="04"
+          index="05"
           eyebrow="Stack"
           title="What I actually use, and what I am only learning."
           standfirst="No percentages. No star ratings. The learning group says so."
@@ -357,7 +417,7 @@ export default function Home() {
         {/* --- car-tracker ------------------------------------------------ */}
         <SiteSection
           id="car-tracker"
-          index="05"
+          index="06"
           eyebrow="Own project"
           title={carTracker.title}
           standfirst="Built to be shown — the production work is under NDA."
@@ -427,7 +487,7 @@ export default function Home() {
         {/* --- Contact ---------------------------------------------------- */}
         <SiteSection
           id="contact"
-          index="06"
+          index="07"
           eyebrow="Contact"
           title={contact.heading}
         >

@@ -37,6 +37,13 @@ export const DENYLIST = [
   'Odoo',
   'Hush',
 
+  // Internal product names. The site describes these systems generically —
+  // "an internal IT service desk", "a task workspace inside the main
+  // platform" — because naming an employer's internal tooling identifies it
+  // and undoes that. Added alongside the contributions section, which is the
+  // moment the risk of one slipping into a caption first existed.
+  'Keystone',
+
   // Internal hosts and credentials
   'DB_PASSWORD',
   'APP_KEY',
@@ -44,6 +51,9 @@ export const DENYLIST = [
   '127.0.0.1',
   'crm_DB',
   'dump-crm',
+  'pieck.app',
+  'mymarq.app',
+  'mytai',
 ];
 
 /** Extensions worth scanning. Binary assets are skipped. */
