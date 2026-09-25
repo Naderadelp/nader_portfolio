@@ -37,7 +37,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Nader Adel — Backend Developer, Laravel & Node",
     description:
-      "Integrations, APIs and data sync for Laravel and Node apps. Taking freelance work, remote.",
+      "Freelance backend developer: Laravel and Node APIs, third-party integrations and data sync. Remote, about 20 hours a week.",
     type: "profile",
     images: [
       {
@@ -60,7 +60,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Nader Adel — Backend Developer, Laravel & Node",
     description:
-      "Integrations, APIs and data sync for Laravel and Node apps. Taking freelance work, remote.",
+      "Freelance backend developer: Laravel and Node APIs, third-party integrations and data sync. Remote, about 20 hours a week.",
     images: ["/og.jpg"],
   },
 };
