@@ -50,6 +50,7 @@ export function CodeBlock({
           read without a pointer (WCAG 2.1.1, axe `scrollable-region-focusable`).
           A focusable region needs an accessible name, hence role + label. */}
       <div
+        data-allows-x-scroll=""
         className="overflow-x-auto"
         tabIndex={0}
         role="region"

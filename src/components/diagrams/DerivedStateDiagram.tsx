@@ -1,5 +1,15 @@
 import { cn } from "@/components/ui/cn";
-import { DiagramFrame, Edge, Label, Legend, Node } from "./primitives";
+import {
+  DiagramFrame,
+  Edge,
+  Label,
+  Legend,
+  NARROW,
+  NARROW_W,
+  Node,
+  NLabel,
+  NNode,
+} from "./primitives";
 
 const TITLE = "Appraisal stages derived from timestamps";
 
@@ -54,7 +64,7 @@ function Wide() {
         window closes
       </Label>
 
-      <Label x={40} y={34} anchor="start" size={10.5}>
+      <Label x={40} y={34} anchor="start">
         stage is derived on read — there is no status column that can drift
       </Label>
 
@@ -96,7 +106,7 @@ function Wide() {
           ) : (
             <circle cx={c} cy={axisY} r={4} className="dot" />
           )}
-          <Label x={c} y={376} size={10} tone="ink">
+          <Label x={c} y={376} tone="ink">
             {STAMPS[i].name}
           </Label>
           <Label x={c} y={390}>
@@ -115,10 +125,10 @@ function Wide() {
         lines={["nothing editable after this"]}
       />
 
-      <Label x={40} y={420} anchor="start" size={10}>
+      <Label x={40} y={420} anchor="start">
         Nothing writes a stage. Adding a review stamp moves the record forward,
       </Label>
-      <Label x={40} y={436} anchor="start" size={10}>
+      <Label x={40} y={436} anchor="start">
         removing one moves it back — evidence and state cannot disagree.
       </Label>
 
@@ -137,41 +147,56 @@ function Wide() {
 
 function Narrow() {
   const id = "ds-n";
-  const pillX = 22;
-  const pillW = 226;
-  const boxX = 56;
-  const boxW = 288;
-  const cx = 135;
-  const rows = [52, 172, 292, 412, 546];
+  // 240-unit canvas (see NARROW in primitives). The rail sits hard against the
+  // left edge; the stamp pill hangs off it and the stage box it derives is
+  // indented past it, so the eye reads stamp-then-stage without an arrow
+  // having to say so.
+  const railX = 6;
+  const pillX = 16;
+  const pillW = 164; // fits "window_closes_at ≤ now" (22 chars ≈ 143) with ~10 either side
+  const pillCx = pillX + pillW / 2; // 98
+  const boxX = 28;
+  const boxW = 204;
+  const boxCx = boxX + boxW / 2; // 130
+
+  // One row = pill (28) + 22 of arrow + stage box (46) = 96 units, on a
+  // 120-unit pitch. The last row is pushed down to 562 to clear the closed-
+  // window rule, which needs two lines of label above it now that the label
+  // is too long for one 240-unit line.
+  const rows = [44, 164, 284, 404, 562];
 
   return (
     <DiagramFrame
       id={id}
-      viewBox="0 0 360 744"
+      viewBox={`0 0 ${NARROW_W} 780`}
       title={TITLE}
       desc={DESC}
       className="block max-w-[27rem] @4xl:hidden"
     >
-      <rect x={8} y={534} width={344} height={184} rx={10} className="zone" />
+      {/* everything below the rule is frozen */}
+      <rect x={4} y={552} width={232} height={180} rx={10} className="zone" />
 
-      <Label x={16} y={18} anchor="start" size={10.5} tone="ink">
+      <NLabel x={8} y={16} anchor="start" size={NARROW.title} tone="ink">
         stage = f(timestamps)
-      </Label>
-      <Label x={16} y={32} anchor="start">
+      </NLabel>
+      <NLabel x={8} y={32} anchor="start">
         no status column to drift
-      </Label>
+      </NLabel>
 
       {/* the timeline rail the stamps hang from */}
-      <path d="M 8 66 V 574" className="ln" />
+      <path d={`M ${railX} 48 V 590`} className="ln" />
 
       {rows.map((ry, i) => (
         <g key={STAMPS[i].name}>
           {i === 0 ? (
-            <circle cx={8} cy={ry + 14} r={3} className="dot-open" />
+            <circle cx={railX} cy={ry + 14} r={3} className="dot-open" />
           ) : (
-            <circle cx={8} cy={ry + 14} r={3} className="dot" />
+            <circle cx={railX} cy={ry + 14} r={3} className="dot" />
           )}
-          <Node
+          {/* Pill heading takes the sub-line size, not the heading size: it is
+              a column name, not a title, and 19-character names like
+              manager_reviewed_at only fit the pill at 11. */}
+          <NNode
             x={pillX}
             y={ry}
             w={pillW}
@@ -179,37 +204,49 @@ function Narrow() {
             rx={14}
             tone="note"
             title={i === 4 ? "window_closes_at ≤ now" : STAMPS[i].name}
-            titleSize={10.5}
+            titleSize={NARROW.label}
           />
-          <Edge id={id} kind="accent" d={`M ${cx} ${ry + 28} V ${ry + 50}`} />
-          <Node
+          <Edge id={id} kind="accent" d={`M ${pillCx} ${ry + 28} V ${ry + 50}`} />
+          <NNode
             x={boxX}
             y={ry + 50}
             w={boxW}
-            h={44}
+            h={46}
             title={STAGES[i].title}
             lines={[STAGES[i].sub]}
           />
         </g>
       ))}
 
-      <Label x={16} y={524} anchor="start">
-        window closes — middleware fails closed
-      </Label>
-      <path d="M 16 530 H 344" className="ln ln-dash" />
+      {/* Re-wrapped, not reworded: the single line was 39 characters, ~253
+          units at size 11, against a 240-unit canvas. */}
+      <NLabel x={8} y={524} anchor="start">
+        window closes —
+      </NLabel>
+      <NLabel x={8} y={540} anchor="start">
+        middleware fails closed
+      </NLabel>
+      <path d="M 8 548 H 232" className="ln ln-dash" />
 
-      <Edge id={id} d="M 200 640 V 660" />
-      <Node
+      <Edge id={id} d={`M ${boxCx} 658 V 678`} />
+      <NNode
         x={boxX}
-        y={660}
+        y={678}
         w={boxW}
-        h={52}
+        h={46}
         tone="note"
         title="middleware fails closed"
         lines={["nothing editable after this"]}
       />
 
-      <Legend x={16} y={734} gap={150} accentLabel="derivation" dashLabel="closed window" />
+      <Legend
+        x={8}
+        y={752}
+        size={NARROW.label}
+        stacked
+        accentLabel="derivation"
+        dashLabel="closed window"
+      />
     </DiagramFrame>
   );
 }

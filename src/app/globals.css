@@ -3,68 +3,117 @@
 /* ---------------------------------------------------------------------------
    Theme variant
    Dark is driven by a class on <html>, written before first paint by the
-   inline script in layout.tsx. `.light` is the explicit opt-out so the
-   system-preference fallback can be overridden in both directions.
+   inline script in layout.tsx. `.light` is the explicit opt-out.
+
+   Dark is now the DEFAULT rather than a system-preference mirror. The subject
+   of this site is infrastructure, and the whole visual argument — amber on
+   near-black, hairline grid, glow — is built for a dark canvas. Light still
+   exists and is still tested, because some people read that way and a few
+   print, but it is the alternate, not the base.
    --------------------------------------------------------------------------- */
 @custom-variant dark (&:where(.dark, .dark *));
 
 /* ---------------------------------------------------------------------------
-   Design tokens
-   Light values are the base; dark overrides follow. Exactly one accent
-   (violet), used only for links, hover states and the active nav marker.
+   Design tokens — dark (base)
+
+   Palette rationale. The accent is amber, not the violet this site used to
+   carry and not the blue/purple every other engineer portfolio carries. Three
+   reasons: it is the colour of the portrait's background lighting, so the
+   photograph sits in the page instead of on it; amber is what a terminal uses
+   for "warning / in flight", which is the subject matter; and it puts visible
+   distance between this site and the neighbouring Cairo Laravel portfolios,
+   which are uniformly blue.
    --------------------------------------------------------------------------- */
 :root {
-  color-scheme: light;
-
-  --bg: #fcfcfd;
-  --surface: #f4f4f5;
-  --fg: #18181b;
-  --fg-secondary: #52525b;
-  --fg-muted: #71717a;
-  --hairline: #e4e4e7;
-  /* Violet, darkened for AA contrast on a near-white background. */
-  --accent: #6d28d9;
-  --accent-hover: #5b21b6;
-  --accent-soft: rgb(109 40 217 / 0.1);
-  --selection: rgb(109 40 217 / 0.18);
-}
-
-/* System preference, unless the reader explicitly chose light. */
-@media (prefers-color-scheme: dark) {
-  :root:not(.light) {
-    color-scheme: dark;
-
-    --bg: #0b0b0d;
-    --surface: #131317;
-    --fg: #e6e6e6;
-    --fg-secondary: #a1a1aa; /* 7.5:1 on --bg */
-    /* 5.8:1 on --bg — clears WCAG AA (4.5:1) for small text. It was #6b7280,
-       which measured 4.07:1 and failed on the nav labels, the figure captions
-       and the footer. Still reserved for mono labels, dates and captions;
-       body copy uses --fg-secondary. */
-    --fg-muted: #8b8b94;
-    --hairline: #232329;
-    --accent: #8b5cf6; /* 4.6:1 on --bg */
-    --accent-hover: #a78bfa;
-    --accent-soft: rgb(139 92 246 / 0.12);
-    --selection: rgb(139 92 246 / 0.25);
-  }
-}
-
-/* Explicit choice wins over the media query. */
-:root.dark {
   color-scheme: dark;
 
-  --bg: #0b0b0d;
-  --surface: #131317;
-  --fg: #e6e6e6;
-  --fg-secondary: #a1a1aa;
-  --fg-muted: #8b8b94; /* 5.8:1 on --bg — see the note above */
-  --hairline: #232329;
-  --accent: #8b5cf6;
-  --accent-hover: #a78bfa;
-  --accent-soft: rgb(139 92 246 / 0.12);
-  --selection: rgb(139 92 246 / 0.25);
+  /* Surfaces, lightest-last. --bg is near-black rather than true black so the
+     grid and the hairlines have something to sit against. */
+  --bg: #08080a;
+  --bg-sunken: #050506;
+  --surface: #101014;
+  --surface-raised: #17171d;
+  --hairline: #24242c;
+  --hairline-strong: #35353f;
+
+  /* Text. Ratios are measured against --surface-raised #17171d, the worst
+     background any of these sits on, not against --bg. Verified by
+     tests/contrast.test.ts, which recomputes them from this file. */
+  --fg: #f4f4f5; /* 16.24:1 */
+  --fg-secondary: #b8b8c2; /* 9.07:1 — body copy */
+  --fg-muted: #8e8e9b; /* 5.52:1 — mono labels, dates, captions */
+
+  /* Amber. --accent is for text and strokes on --bg; --accent-ink is what
+     goes on top of a filled amber block. */
+  --accent: #f5a524; /* 8.74:1 */
+  --accent-hover: #fbbf24;
+  --accent-ink: #08080a;
+  --accent-soft: rgb(245 165 36 / 0.12);
+  --accent-line: rgb(245 165 36 / 0.32);
+
+  /* Status colours for the pipeline figure and the availability dot.
+     Three states: the call succeeded, the call is waiting, the remote side
+     refused.
+
+     Hues are taken from the Okabe–Ito colourblind-safe set (bluish green /
+     sky blue / vermillion), lightened where the original was too dark to
+     clear 4.5:1 on this background. The first draft used green for success
+     and red for a 429, which is precisely the pair a deuteranope cannot
+     separate. Nothing here is encoded by colour alone — every step is also
+     labelled in words — but a figure whose whole point is legibility should
+     not need the fallback to be readable. */
+  --ok: #5ee0a8; /* bluish green — 201 Created */
+  --waiting: #7cc4f0; /* sky blue — honouring retry_after */
+  --refused: #ff7a45; /* vermillion — 429 Too Many Requests */
+
+  /* Decoration. Both are near-invisible on purpose — the grid should register
+     as texture, not as a table. */
+  --grid-line: rgb(255 255 255 / 0.028);
+  --glow-warm: rgb(245 165 36 / 0.14);
+  --glow-cool: rgb(99 102 241 / 0.1);
+
+  --selection: rgb(245 165 36 / 0.28);
+}
+
+/* ---------------------------------------------------------------------------
+   Design tokens — light (explicit opt-out)
+
+   Warm paper rather than clinical white, so switching themes reads as the same
+   site in another light rather than as a different site. Amber has to darken
+   hard to clear AA on a light background: #f5a524 measures 1.9:1 on paper and
+   is unusable for text, so light mode uses a burnt amber for anything with a
+   letterform in it.
+   --------------------------------------------------------------------------- */
+:root.light {
+  color-scheme: light;
+
+  --bg: #fbfaf8;
+  --bg-sunken: #f3f1ed;
+  --surface: #f4f2ee;
+  --surface-raised: #ffffff;
+  --hairline: #e4e0d9;
+  --hairline-strong: #d2ccc1;
+
+  /* Measured against --surface #f4f2ee, the worst background here. */
+  --fg: #17171a; /* 16.00:1 */
+  --fg-secondary: #45454d; /* 8.49:1 */
+  --fg-muted: #6b6b76; /* 4.71:1 — the tightest token on the site */
+
+  --accent: #9a4a06; /* 5.60:1 — burnt amber, safe for small text */
+  --accent-hover: #7c3a04;
+  --accent-ink: #ffffff;
+  --accent-soft: rgb(154 74 6 / 0.09);
+  --accent-line: rgb(154 74 6 / 0.28);
+
+  --ok: #0f7a52;
+  --waiting: #0d5c8c;
+  --refused: #b3430a;
+
+  --grid-line: rgb(0 0 0 / 0.035);
+  --glow-warm: rgb(245 165 36 / 0.12);
+  --glow-cool: rgb(99 102 241 / 0.07);
+
+  --selection: rgb(154 74 6 / 0.18);
 }
 
 @theme inline {
@@ -72,42 +121,71 @@
   --font-mono: var(--font-geist-mono);
 
   --color-bg: var(--bg);
+  --color-bg-sunken: var(--bg-sunken);
   --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-hairline: var(--hairline);
+  --color-hairline-strong: var(--hairline-strong);
   --color-fg: var(--fg);
   --color-fg-secondary: var(--fg-secondary);
   --color-fg-muted: var(--fg-muted);
-  --color-hairline: var(--hairline);
   --color-accent: var(--accent);
   --color-accent-hover: var(--accent-hover);
+  --color-accent-ink: var(--accent-ink);
   --color-accent-soft: var(--accent-soft);
+  --color-accent-line: var(--accent-line);
+  --color-ok: var(--ok);
+  --color-waiting: var(--waiting);
+  --color-refused: var(--refused);
 
-  /* Type scale. Hero is fluid; everything else is fixed and small. */
-  --text-hero: clamp(3rem, 5.5vw, 4rem);
-  --text-hero--line-height: 1.05;
-  --text-hero--letter-spacing: -0.025em;
+  /* -------------------------------------------------------------------------
+     Type scale
+
+     The display sizes are much larger than the old scale. The previous hero
+     capped at 4rem and read as a document heading; a portfolio hero has to
+     carry the whole first screen on its own. Tracking goes sharply negative as
+     size goes up, which is what stops large Geist from looking loose.
+     ------------------------------------------------------------------------- */
+  --text-display: clamp(2.75rem, 7vw, 5.75rem);
+  --text-display--line-height: 0.96;
+  --text-display--letter-spacing: -0.04em;
+
+  --text-headline: clamp(1.75rem, 3.6vw, 2.75rem);
+  --text-headline--line-height: 1.12;
+  --text-headline--letter-spacing: -0.03em;
 
   --text-section: clamp(1.25rem, 1.4vw + 0.9rem, 1.5rem);
   --text-section--line-height: 1.3;
   --text-section--letter-spacing: -0.01em;
+
+  --text-lead: clamp(1.0625rem, 0.4vw + 1rem, 1.1875rem);
+  --text-lead--line-height: 1.6;
 
   --text-body: 1.0625rem; /* 17px */
   --text-body--line-height: 1.65;
 
   --text-label: 0.75rem; /* 12px — mono labels, dates, tags */
   --text-label--line-height: 1.4;
-  --text-label--letter-spacing: 0.06em;
+  --text-label--letter-spacing: 0.08em;
+
+  --text-micro: 0.6875rem; /* 11px — section numbers, diagram annotations */
+  --text-micro--line-height: 1.3;
+  --text-micro--letter-spacing: 0.12em;
 
   --text-metric: clamp(2rem, 3.5vw, 2.75rem);
   --text-metric--line-height: 1;
   --text-metric--letter-spacing: -0.03em;
 
   /* Prose measure cap. Geist's `0` is wide, so 68ch resolved to 766px — wider
-     than the main column at every breakpoint, which meant the cap never bit
-     and lines ran to ~86 characters at 768px. 38rem is ~72 characters at the
-     17px body size. */
+     than the column at every breakpoint, which meant the cap never bit. 38rem
+     is ~72 characters at the 17px body size. */
   --container-measure: 38rem;
 
   --ease-out-soft: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  /* Fast departure, long settle. Better than the Material curve for anything
+     that should feel mechanical rather than decorative. */
+  --ease-snappy: cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 /* ---------------------------------------------------------------------------
@@ -116,7 +194,6 @@
 @layer base {
   html {
     scroll-behavior: smooth;
-    /* Sticky sidebar + anchored sections: keep headings clear of the top. */
     scroll-padding-top: 6rem;
   }
 
@@ -128,6 +205,19 @@
     line-height: 1.65;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
+    /* Avoids the one-word last line on a wrapped paragraph. Ignored by
+       browsers that do not support it, so there is nothing to guard. */
+    text-wrap: pretty;
+  }
+
+  /* Headings get `balance` instead: it evens the line lengths of a short block
+     rather than only fixing the last line, which is what large display type
+     needs. The spec caps it at a handful of lines, which is exactly the range
+     every heading on this site falls in. */
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
   }
 
   ::selection {
@@ -141,13 +231,153 @@
     border-radius: 2px;
   }
 
-  /* Geist Mono is for labels, dates, metrics and tech tags only. */
   code,
   kbd,
   samp,
   pre {
     font-family: var(--font-geist-mono), ui-monospace, monospace;
   }
+}
+
+/* ---------------------------------------------------------------------------
+   Page texture
+
+   A hairline grid plus two soft colour washes. Both are painted on a fixed,
+   aria-hidden layer rather than on <body>, so they never scroll, never
+   intercept a pointer, and cost nothing to repaint.
+   --------------------------------------------------------------------------- */
+.page-texture {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+  background-size: 72px 72px;
+  /* Fades the grid out towards the bottom so long pages do not feel wallpapered. */
+  mask-image: linear-gradient(to bottom, black 0%, black 55%, transparent 100%);
+}
+
+/**
+ * Film grain, as an inline SVG turbulence filter rather than an image request.
+ *
+ * Flat dark backgrounds band visibly on cheap panels and read as "unstyled";
+ * a very low-opacity noise layer gives the colour a material and hides the
+ * banding. baseFrequency 0.8 is fine grain — low values look like clouds.
+ */
+.page-texture::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.22;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+}
+
+/* The two colour washes, on their own layer.
+   They need their own element because .page-texture has now spent both of its
+   pseudo-elements: ::before on nothing and ::after on the grain. */
+.page-glow {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.page-glow::before,
+.page-glow::after {
+  content: "";
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(90px);
+}
+
+.page-glow::before {
+  width: 46rem;
+  height: 46rem;
+  top: -14rem;
+  left: -10rem;
+  background: var(--glow-warm);
+}
+
+.page-glow::after {
+  width: 38rem;
+  height: 38rem;
+  top: 6rem;
+  right: -12rem;
+  background: var(--glow-cool);
+}
+
+/* ---------------------------------------------------------------------------
+   Display type treatments
+   --------------------------------------------------------------------------- */
+
+/* Outline lettering for the second line of the hero. -webkit-text-stroke is
+   supported everywhere that matters; the colour fallback below means a browser
+   without it renders solid muted text rather than invisible text.
+
+   The stroke is --fg-muted (6.19:1 on --bg), NOT --hairline-strong. The
+   hairline measures 1.65:1, which is acceptable for a decorative border and
+   unreadable for a letterform — and this line carries real words, so it is
+   held to the text contrast bar like any other text. */
+.text-outline {
+  color: var(--fg-secondary);
+}
+
+@supports (-webkit-text-stroke: 1px black) {
+  .text-outline {
+    color: transparent;
+    -webkit-text-stroke: 1px var(--fg-muted);
+  }
+}
+
+/* The amber wash used on the emphasised line of a headline. */
+.text-accent-gradient {
+  background-image: linear-gradient(
+    100deg,
+    var(--accent) 0%,
+    var(--accent-hover) 42%,
+    var(--accent) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* ---------------------------------------------------------------------------
+   Corner brackets
+
+   L-shaped marks at opposite corners of a frame, drawn on the element's own
+   pseudo-elements so no extra DOM is needed. Used on the portrait and on the
+   diagram figures — it is the site's one recurring ornament, and it reads as a
+   technical drawing rather than as decoration.
+   --------------------------------------------------------------------------- */
+.corner-brackets {
+  position: relative;
+}
+
+.corner-brackets::before,
+.corner-brackets::after {
+  content: "";
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-color: var(--accent);
+  border-style: solid;
+  pointer-events: none;
+}
+
+.corner-brackets::before {
+  top: -1px;
+  left: -1px;
+  border-width: 1px 0 0 1px;
+}
+
+.corner-brackets::after {
+  bottom: -1px;
+  right: -1px;
+  border-width: 0 1px 1px 0;
 }
 
 /* ---------------------------------------------------------------------------
@@ -158,10 +388,10 @@
    --------------------------------------------------------------------------- */
 [data-reveal] {
   opacity: 0;
-  transform: translateY(10px);
+  transform: translateY(14px);
   transition:
-    opacity 220ms var(--ease-out-soft),
-    transform 220ms var(--ease-out-soft);
+    opacity 480ms var(--ease-out-expo),
+    transform 480ms var(--ease-out-expo);
   transition-delay: var(--reveal-delay, 0ms);
   will-change: opacity, transform;
 }
@@ -169,6 +399,167 @@
 [data-reveal][data-revealed="true"] {
   opacity: 1;
   transform: none;
+}
+
+/* ---------------------------------------------------------------------------
+   Keyframes for the pipeline figure and the small live details.
+   --------------------------------------------------------------------------- */
+
+/* A job travelling along an SVG path. */
+@keyframes flow-dash {
+  to {
+    stroke-dashoffset: -1000;
+  }
+}
+
+/* The availability dot and the "in flight" pulse. */
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.85);
+    opacity: 0.8;
+  }
+  70% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+}
+
+@keyframes ticker-left {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    /* The track is rendered twice; -50% lands exactly on the seam. */
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes caret-blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+.animate-ticker {
+  animation: ticker-left var(--ticker-duration, 42s) linear infinite;
+}
+
+/* Pausing on hover is a courtesy to anyone trying to read a specific item. */
+.ticker-viewport:hover .animate-ticker {
+  animation-play-state: paused;
+}
+
+/* Edge fade so items enter and leave instead of being clipped. */
+.ticker-viewport {
+  mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    black 7%,
+    black 93%,
+    transparent 100%
+  );
+}
+
+/* ---------------------------------------------------------------------------
+   Pipeline figure
+
+   A highlight travels down the rail and each step lights up as it passes.
+
+   Note what is NOT animated: the opacity of any text. The obvious way to build
+   this is to hold un-reached steps at ~45% opacity and bring them to full as
+   the scan arrives, which looks good and drops --fg-secondary body copy to
+   roughly 4:1 — under the AA floor for most of every cycle, and invisible to
+   an audit that samples a single frame. The pulse is therefore carried by the
+   row background and the node dot only, and every word stays at full contrast
+   the whole way round.
+   --------------------------------------------------------------------------- */
+
+/* Travelling highlight. The element spans the full rail; the gradient is a
+   6rem band moved through it with background-position, because the rail's
+   height is not known to CSS and a translate would need it. */
+.rail-scan {
+  background-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    var(--accent) 50%,
+    transparent 100%
+  );
+  background-size: 100% 6rem;
+  background-repeat: no-repeat;
+  animation: rail-scan var(--cycle, 10s) linear infinite;
+}
+
+@keyframes rail-scan {
+  from {
+    background-position: 0 -6rem;
+  }
+  to {
+    background-position: 0 100%;
+  }
+}
+
+/**
+ * The row marker.
+ *
+ * An inset left bar, NOT a background tint. The first version animated
+ * `background-color` between transparent and --accent-soft, which puts a
+ * moving surface behind live text: the contrast ratio then depends on which
+ * frame you measure, and the axe run failed or passed depending on when it
+ * sampled. A flaky accessibility test is worse than none, because it trains
+ * you to re-run it until it goes green.
+ *
+ * The bar sits in the first 2px of the row, left of the right-aligned time
+ * label, so nothing is ever drawn behind a letterform and every ratio on this
+ * figure is constant for the whole cycle.
+ */
+.pipeline-step {
+  animation: step-wake var(--cycle, 10s) linear infinite;
+  animation-delay: calc(var(--i, 0) * 1.15s);
+}
+
+@keyframes step-wake {
+  0%,
+  100% {
+    box-shadow: inset 2px 0 0 transparent;
+  }
+  3%,
+  15% {
+    box-shadow: inset 2px 0 0 var(--accent);
+  }
+  32% {
+    box-shadow: inset 2px 0 0 transparent;
+  }
+}
+
+.step-dot {
+  animation: dot-wake var(--cycle, 10s) linear infinite;
+  animation-delay: calc(var(--i, 0) * 1.15s);
+}
+
+@keyframes dot-wake {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 var(--accent-soft);
+    transform: translateX(-50%) scale(1);
+  }
+  3%,
+  15% {
+    box-shadow: 0 0 0 5px var(--accent-soft);
+    transform: translateX(-50%) scale(1.35);
+  }
+  32% {
+    box-shadow: 0 0 0 0 var(--accent-soft);
+    transform: translateX(-50%) scale(1);
+  }
 }
 
 /* ---------------------------------------------------------------------------

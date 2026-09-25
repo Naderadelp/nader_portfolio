@@ -232,13 +232,6 @@ export const adaptedRepos: RepoCard[] = projects
 
 const SCREENSHOTS: ScreenShot[] = [
   {
-    src: '/screenshots/01-car-tracker-dashboard-fleet-kpis.jpg',
-    alt: 'Admin dashboard with six KPI tiles and a dual-axis twelve-month fuel spend and volume chart.',
-    caption: 'Dashboard — KPI tiles with month-over-month deltas, and a dual-axis twelve-month chart.',
-    width: 1165,
-    height: 652,
-  },
-  {
     src: '/screenshots/04-car-tracker-reminders-notification-workflow.jpg',
     alt: 'Reminders table showing date and odometer thresholds alongside a notified or pending state column.',
     caption: 'Reminders — each row fires on a date or an odometer threshold, with its notification state.',
@@ -256,20 +249,6 @@ const SCREENSHOTS: ScreenShot[] = [
     src: '/screenshots/06-car-tracker-roles-rbac-permissions.jpg',
     alt: 'Roles screen listing three roles with their permission counts on the api guard.',
     caption: 'Roles — permission counts per role, all on the api guard.',
-    width: 1165,
-    height: 652,
-  },
-  {
-    src: '/screenshots/02-car-tracker-cars-fleet-listing.jpg',
-    alt: 'Cars table with sortable columns for owner, brand, model, odometer and warranty status.',
-    caption: 'Cars — sortable columns, search, and warranty status indicators.',
-    width: 1165,
-    height: 652,
-  },
-  {
-    src: '/screenshots/07-car-tracker-documents-expiry-tracking.jpg',
-    alt: 'Documents register with colour-coded type badges sorted by expiry date.',
-    caption: 'Documents — colour-coded types, sorted by expiry.',
     width: 1165,
     height: 652,
   },
@@ -306,46 +285,50 @@ export const mobileScreenshots: ScreenShot[] = [
     width: 590,
     height: 1280,
   },
+];
+
+/**
+ * The field-sales client for the bidirectional ERP sync case study.
+ *
+ * Published under a strict rule: no personal data, and nothing that names the
+ * client. Every frame here was checked individually and edited before it was
+ * committed — the account name and logo on the dashboard are covered, the one
+ * real vendor name in Today's Visits is covered, and the product branding is
+ * blurred. Nine further frames from the same set were discarded outright
+ * rather than edited, because they were lists of real vendor names and there
+ * is no honest way to redact a screen whose entire content is people.
+ *
+ * What survives is what actually supports the case study: aggregate counts
+ * that came from the ERP sync (1,918 vendors, 71 stock lines), and the order
+ * flow the ~50 field agents use.
+ */
+export const erpScreenshots: ScreenShot[] = [
   {
-    src: '/screenshots/mobile/car-tracker-mobile-warranty-more.jpg',
-    alt: 'Warranty card showing active status, expiry date and a mileage-limit progress bar with kilometres remaining.',
-    caption: 'Warranty tracked against two independent limits at once, surfacing whichever will be hit first.',
-    width: 590,
+    src: '/screenshots/erp/erp-field-app-dashboard.jpg',
+    alt: 'Field agent home screen showing a check-in prompt, counters for orders, invoices, stock lines and vendors, and a list of the day\u2019s visits.',
+    caption: 'Counters fed by the ERP sync — 1,918 vendors and 71 stock lines held locally, so the screen renders without an ERP call on the request path.',
+    width: 591,
     height: 1280,
   },
   {
-    src: '/screenshots/mobile/car-tracker-mobile-monthly-report.jpg',
-    alt: 'Monthly report showing spend with month-over-month change, fill-up count, distance and cost per kilometre, plus a weekly bar chart.',
-    caption: 'Period aggregation with a month-over-month delta and derived metrics like cost per kilometre.',
-    width: 590,
+    src: '/screenshots/erp/erp-field-app-empty-order.jpg',
+    alt: 'New order screen with tabs for services, raw materials and packing materials, showing an empty state before any product is added.',
+    caption: 'A new order before anything is added. Product categories come from the ERP, not from a local list.',
+    width: 591,
     height: 1280,
   },
   {
-    src: '/screenshots/mobile/car-tracker-mobile-costs-breakdown.jpg',
-    alt: 'Costs tab showing total lifetime spend with a stacked bar splitting it into fuel and service, above a per-interval cost list.',
-    caption: 'Lifetime spend decomposed by category and rolled back up per service interval.',
-    width: 590,
+    src: '/screenshots/erp/erp-field-app-product.jpg',
+    alt: 'Product selected in an order, showing batch number and unit price, with a quantity sheet open over it.',
+    caption: 'Batch number and unit price arrive with the product, so the agent is quoting the same figure the ERP holds.',
+    width: 591,
     height: 1280,
   },
   {
-    src: '/screenshots/mobile/car-tracker-mobile-fuel-add-fillup.jpg',
-    alt: 'Fuel tab with efficiency, fill-up count and spend tiles, and an Add Fill-up sheet with litres, odometer, cost and date fields.',
-    caption: 'The odometer is pre-filled from the car state, and each fill-up feeds the efficiency figure above.',
-    width: 590,
-    height: 1280,
-  },
-  {
-    src: '/screenshots/mobile/car-tracker-mobile-service-centers.jpg',
-    alt: 'Nearby service centres list, each showing open or closed status, distance away, opening hours and call and directions actions.',
-    caption: 'Branches sorted by distance, with opening hours evaluated against the current time to derive open or closed.',
-    width: 590,
-    height: 1280,
-  },
-  {
-    src: '/screenshots/mobile/car-tracker-mobile-document-type-picker.jpg',
-    alt: 'Bottom sheet listing the six supported document types.',
-    caption: 'Document types as a constrained enum rather than free text, so expiry rules apply per type.',
-    width: 590,
+    src: '/screenshots/erp/erp-field-app-order-summary.jpg',
+    alt: 'Order summary listing the line item and price, a notes field, cheque and cash payment options, and a subtotal, tax and total breakdown.',
+    caption: 'Order summary with tax resolved before submission — the totals are computed where the price came from.',
+    width: 591,
     height: 1280,
   },
 ];

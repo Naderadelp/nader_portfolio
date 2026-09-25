@@ -28,6 +28,16 @@ import { contrastRatio, serveStatic, type StaticSite } from "./helpers/static-se
  * Nothing is excepted or silenced. The contrast test below reads the tokens
  * the page ACTUALLY SHIPS rather than comparing hard-coded hex values, so it
  * cannot go stale the way a pinned constant would.
+ *
+ * ON ANIMATION. Animations are deliberately left RUNNING during the axe pass,
+ * and the page is written so that none of them paints behind text. If
+ * `color-contrast` ever fails intermittently here, do not re-run it until it
+ * passes: an intermittent contrast failure means some animation is moving a
+ * surface underneath a letterform, which makes the real ratio a function of
+ * time. That is the bug, and this is the test that finds it. It has already
+ * caught one — the pipeline figure's row highlight, which animated
+ * `background-color` behind live text and now animates an inset left bar
+ * beside it instead.
  */
 
 const require = createRequire(import.meta.url);
@@ -99,8 +109,28 @@ afterAll(async () => {
 async function openPage(theme: "light" | "dark"): Promise<Page> {
   const page = await browser.newPage();
   await page.setViewport({ width: 1280, height: 900 });
+
+  /**
+   * The theme is selected through localStorage, not `prefers-color-scheme`.
+   *
+   * This used to emulate the media feature, which worked while the site
+   * mirrored the OS. It no longer does: dark is the default and light is an
+   * explicit opt-out, so emulating a light OS now produces a dark page and
+   * the "light" run silently became a second dark run — the exact vacuous
+   * pass the assertion below exists to catch. It did catch it.
+   *
+   * `evaluateOnNewDocument` writes the key before any page script executes,
+   * so the pre-paint script in layout.tsx reads it on the first paint.
+   */
+  await page.evaluateOnNewDocument((value) => {
+    try {
+      localStorage.setItem("theme", value);
+    } catch {
+      // Blocked storage: the assertion below will fail loudly, as it should.
+    }
+  }, theme);
+
   await page.emulateMediaFeatures([
-    { name: "prefers-color-scheme", value: theme },
     // Reduced motion off, so nothing is mid-animation when axe samples colours.
     { name: "prefers-reduced-motion", value: "no-preference" },
   ]);
@@ -158,14 +188,49 @@ describe.each(["light", "dark"] as const)("axe-core — %s theme", (theme) => {
   });
 
   it("actually rendered the requested theme (guards a vacuous run)", async () => {
-    const bg = await page.evaluate(
-      () => getComputedStyle(document.body).backgroundColor,
-    );
-    // #0b0b0d === rgb(11, 11, 13)
+    /**
+     * Asserts the invariant, not a literal colour.
+     *
+     * This previously hardcoded `rgb(11, 11, 13)`, and a palette change broke
+     * it — which is the wrong kind of failure: the theme was applying
+     * perfectly, the test just knew an out-of-date hex. What actually matters
+     * is that <body> painted the theme's own --bg token, and that a theme
+     * called "dark" is in fact dark.
+     */
+    const { bodyBg, tokenBg, luminance } = await page.evaluate(() => {
+      const body = getComputedStyle(document.body).backgroundColor;
+      const token = getComputedStyle(document.documentElement)
+        .getPropertyValue("--bg")
+        .trim();
+
+      // Resolve the token through the browser so both sides are rgb() strings.
+      const probe = document.createElement("div");
+      probe.style.backgroundColor = token;
+      document.body.append(probe);
+      const resolved = getComputedStyle(probe).backgroundColor;
+      probe.remove();
+
+      const [r, g, b] = body.match(/\d+(\.\d+)?/g)!.map(Number);
+      const lin = (c: number) => {
+        const s = c / 255;
+        return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
+      };
+
+      return {
+        bodyBg: body,
+        tokenBg: resolved,
+        luminance: 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b),
+      };
+    });
+
+    // The theme's own token is what got painted.
+    expect(bodyBg).toBe(tokenBg);
+
+    // And the theme is the kind of theme it claims to be.
     if (theme === "dark") {
-      expect(bg).toBe("rgb(11, 11, 13)");
+      expect(luminance).toBeLessThan(0.05);
     } else {
-      expect(bg).not.toBe("rgb(11, 11, 13)");
+      expect(luminance).toBeGreaterThan(0.7);
     }
   });
 
